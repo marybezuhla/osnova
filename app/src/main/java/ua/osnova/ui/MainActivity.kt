@@ -54,6 +54,8 @@ class MainActivity : ComponentActivity() {
     private val bookmarks = mutableStateOf(emptyList<String>())
     private val last = mutableStateOf<String?>(null)
     private val textLang = mutableStateOf("uk")
+    private val readSpeed = mutableStateOf(1f)
+    private val readVoice = mutableStateOf(ua.osnova.speech.ReadAloud.OWN)
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLanguage.wrap(newBase))
@@ -66,6 +68,8 @@ class MainActivity : ComponentActivity() {
         places = Places(this)
         bookmarks.value = places.bookmarks()
         last.value = places.last()
+        readSpeed.value = places.readSpeed()
+        readVoice.value = places.readVoice()
         // Until chosen, the text is in the app's own language
         textLang.value = places.textLanguage() ?: getString(R.string.text_language_default)
         setContent {
@@ -158,6 +162,10 @@ class MainActivity : ComponentActivity() {
                         onToggleBookmark = ::toggleBookmark,
                         onLanguage = { textLang.value = it; places.setTextLanguage(it) },
                         onBack = ::back,
+                        readSpeed = readSpeed.value,
+                        readVoice = readVoice.value,
+                        onReadSpeed = { readSpeed.value = it; places.setReadSpeed(it) },
+                        onReadVoice = { readVoice.value = it; places.setReadVoice(it) },
                         onShown = { key ->
                             last.value = key
                             places.setLast(key)

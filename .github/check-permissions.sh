@@ -6,9 +6,9 @@ AAPT=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
 "$AAPT" dump permissions "$APK" > permissions.txt
 cat permissions.txt
 grep -q '^package:' permissions.txt || { echo "::error::Could not read permissions"; exit 1; }
-# Osnova needs no permission at all: no internet, no files, no notifications. Only the one Android adds
-# for the app's own receivers (from the AndroidX libraries) is allowed.
-ALLOWED=" ua.osnova.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION "
+# Osnova has no internet, no files, no notifications to ask for. Allowed: the one Android adds for the app's
+# own receivers (from the AndroidX libraries), and the foreground service that reads aloud with the screen off.
+ALLOWED=" ua.osnova.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION android.permission.FOREGROUND_SERVICE android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK "
 for p in $(grep -oE "name='[^']+'" permissions.txt | sed "s/name='//;s/'//"); do
   case "$ALLOWED" in
     *" $p "*) ;;

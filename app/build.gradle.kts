@@ -28,6 +28,8 @@ android {
 
     namespace = "ua.osnova"
     compileSdk = 36
+    // Pinned so the bridge to eSpeak (src/main/cpp) builds the same everywhere, as in Hramota
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
         applicationId = "ua.osnova"
@@ -35,6 +37,16 @@ android {
         targetSdk = 36
         versionCode = appVersionCode
         versionName = appVersion
+        // Phones only (the voice model's library is large for each kind of processor)
+        ndk { abiFilters += "arm64-v8a" }
+    }
+
+    // eSpeak NG for the English voice's phonemes: the prebuilt static library in /espeak (see /espeak/VERSION)
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     // No Google-readable list of libraries inside the APK
@@ -72,6 +84,8 @@ android {
     // Lets Android 13+ offer Osnova's own language setting (English, Ukrainian)
     androidResources {
         generateLocaleConfig = true
+        // The stress dictionary and the voice's small files are read straight from the APK (mapped): not compressed
+        noCompress += listOf("onnx", "bin")
     }
 }
 
@@ -90,8 +104,10 @@ dependencies {
     // core-ktx, not core: other libraries ask for it, and this keeps the one already reviewed
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.activity:activity-compose:1.10.1")
-    // To read the Constitution's text off the main thread when the app opens
+    // To read the Constitution's text off the main thread when the app opens, and for reading aloud
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    // Reading aloud: the voice model runs on the phone (MIT), the same version as in Hramota; nothing is sent anywhere
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
 
     testImplementation("junit:junit:4.13.2")
     // Screen tests only (never in the app): draw each screen with made-up data, so a crash is caught
