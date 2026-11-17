@@ -18,6 +18,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -92,20 +93,21 @@ fun LookSettings(
     language: AppLanguage.Choice,
     onLanguage: (AppLanguage.Choice) -> Unit,
     modifier: Modifier = Modifier,
-    afterLanguage: @Composable () -> Unit = {},
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle(stringResource(R.string.app_language))
-        Segments(
-            options = listOf(
-                AppLanguage.Choice.AUTO to R.string.mode_auto,
-                AppLanguage.Choice.UK to R.string.lang_uk,
-                AppLanguage.Choice.EN to R.string.lang_en,
-            ),
-            chosen = language,
-            onChoose = onLanguage,
-        )
-        afterLanguage()
+        // One under another: the languages' names stay whole with the largest font
+        Group {
+            Choices(
+                options = listOf(
+                    AppLanguage.Choice.AUTO to R.string.lang_auto,
+                    AppLanguage.Choice.UK to R.string.lang_uk,
+                    AppLanguage.Choice.EN to R.string.lang_en,
+                ),
+                chosen = language,
+                onChoose = onLanguage,
+            )
+        }
         Spacer(Modifier.height(8.dp))
         SectionTitle(stringResource(R.string.look_mode))
         Segments(
@@ -165,6 +167,22 @@ internal fun <T> Segments(options: List<Pair<T, Int>>, chosen: T, onChoose: (T) 
                     maxLines = 1,
                     autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = style.fontSize, stepSize = 0.5.sp),
                 )
+            }
+        }
+    }
+}
+
+/** Choices one under another, each a whole row with a radio button. */
+@Composable
+private fun <T> Choices(options: List<Pair<T, Int>>, chosen: T, onChoose: (T) -> Unit) {
+    Column(Modifier.fillMaxWidth().selectableGroup()) {
+        for ((value, label) in options) {
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(value == chosen, role = Role.RadioButton) { onChoose(value) },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = value == chosen, onClick = null)
+                Text(stringResource(label), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 12.dp))
             }
         }
     }

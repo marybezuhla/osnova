@@ -33,11 +33,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -134,19 +138,21 @@ private fun SearchField(query: String, onQuery: (String) -> Unit) {
             }
         },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        // No corrections: the words of the law as typed
+        keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, imeAction = ImeAction.Search),
         shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = scheme.surface,
             unfocusedContainerColor = scheme.surface,
-            unfocusedBorderColor = scheme.outlineVariant,
+            // The field's edge seen clearly (3:1 against the background)
+            unfocusedBorderColor = scheme.outline,
         ),
     )
 }
 
 /** A card in the list: the theme's card colour, a thin frame, the whole card can be tapped. */
 @Composable
-internal fun Tile(onClick: (() -> Unit)?, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+internal fun Tile(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -156,7 +162,7 @@ internal fun Tile(onClick: (() -> Unit)?, modifier: Modifier = Modifier, content
     ) {
         Box(
             Modifier.heightIn(min = 56.dp)
-                .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
+                .clickable(role = Role.Button, onClick = onClick)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             contentAlignment = Alignment.CenterStart,
         ) { content() }
@@ -180,7 +186,7 @@ private fun LazyListScope.contents(c: Constitution, res: Resources, lang: String
     }
     for (chapter in c.chapters) {
         item(key = chapter.num) {
-            Tile({ if (chapter.articles.isEmpty()) onOpen("c:" + chapter.num) else onChapter(chapter.num) }) {
+            Tile({ if (chapter.articles.isEmpty()) onOpen(Page.Text(chapter).key) else onChapter(chapter.num) }) {
                 Column {
                     Text(chapterName(res, chapter.num, chapter.title, lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                     if (chapter.articles.isNotEmpty()) {
@@ -274,16 +280,16 @@ private fun LazyListScope.results(
             }
         }
     }
-    if (hits.isEmpty() && jump == null) {
-        item {
-            Text(
-                stringResource(R.string.search_none),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-            )
-        }
+    // How many were found (or that none were), said by TalkBack as the query changes
+    item {
+        Text(
+            if (hits.isEmpty() && jump == null) stringResource(R.string.search_none) else stringResource(R.string.search_found, hits.size),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(vertical = if (hits.isEmpty() && jump == null) 24.dp else 0.dp)
+                .semantics { liveRegion = LiveRegionMode.Polite },
+        )
     }
     items(hits) { hit ->
         val page = c.pages[hit.page]
@@ -291,7 +297,7 @@ private fun LazyListScope.results(
         Tile({ onOpen(page.key) }) {
             Column {
                 Text(pageTitle(res, page, lang), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                Text(marked(hit.excerpt, hit.marks, mark), style = MaterialTheme.typography.bodyMedium)
+                Text(marked(hit.excerpt, hit.marks, mark), style = MaterialTheme.typography.bodyMedium.copy(localeList = LocaleList(lang)))
             }
         }
     }

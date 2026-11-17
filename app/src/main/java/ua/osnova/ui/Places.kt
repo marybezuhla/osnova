@@ -10,7 +10,7 @@ class Places(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
 
     /** Page keys (see Page.key), newest first. */
-    fun bookmarks(): List<String> = read { it.getString(BOOKMARKS, null)?.split(SEP)?.filter(String::isNotEmpty) } ?: emptyList()
+    fun bookmarks(): List<String> = read { it.getString(BOOKMARKS, null)?.split(SEP)?.filter(String::isNotEmpty)?.distinct() } ?: emptyList()
 
     fun setBookmarks(keys: List<String>) = write { it.putString(BOOKMARKS, keys.joinToString(SEP)) }
 

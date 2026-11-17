@@ -1,8 +1,8 @@
 # Сторонні бібліотеки й тексти · Third-party libraries and texts
 
-Основа поширюється за ліцензією GPL-3.0-or-later ([LICENSE](LICENSE)). У застосунок входять такі бібліотеки (усі — Apache License 2.0):
+Основа поширюється за ліцензією GPL-3.0-or-later ([LICENSE](LICENSE)). У застосунок входять такі бібліотеки (ліцензії — у таблиці: Apache-2.0, MIT, GPL-3.0-or-later):
 
-Osnova is distributed under GPL-3.0-or-later ([LICENSE](LICENSE)). The app includes these libraries (all under the Apache License 2.0):
+Osnova is distributed under GPL-3.0-or-later ([LICENSE](LICENSE)). The app includes these libraries (licences in the table: Apache-2.0, MIT, GPL-3.0-or-later):
 
 | Бібліотека · Library | Автор · Author | Ліцензія · Licence |
 |---|---|---|

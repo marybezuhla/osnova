@@ -67,8 +67,9 @@ class ReadAloudService : Service() {
                     .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE or PlaybackState.ACTION_PLAY_PAUSE or
                         PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS or PlaybackState.ACTION_STOP)
                     .setState(if (playing) PlaybackState.STATE_PLAYING else PlaybackState.STATE_PAUSED, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f).build())
-                // The lock screen's player shows the page being read (a public text, nothing personal)
-                session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, title)
+                // The lock screen's player shows only "Reading aloud · Osnova": someone holding a locked phone
+                // (the policy's "other hands, forced to show") does not see what is being listened to
+                session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, getString(R.string.read_aloud))
                     .putString(MediaMetadata.METADATA_KEY_ARTIST, getString(R.string.app_name)).build())
                 show(playing, title)
             }
@@ -93,6 +94,9 @@ class ReadAloudService : Service() {
 
     private fun show(playing: Boolean, title: String) {
         val open = packageManager.getLaunchIntentForPackage(packageName)?.let { PendingIntent.getActivity(this, 9, it, PendingIntent.FLAG_IMMUTABLE) }
+        // On the lock screen, without what is being read
+        val public = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_read_aloud)
+            .setContentTitle(getString(R.string.read_aloud)).setContentText(getString(R.string.app_name)).build()
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_read_aloud)
             .setContentTitle(title)
@@ -100,8 +104,8 @@ class ReadAloudService : Service() {
             .setContentIntent(open)
             .setOngoing(playing)
             .setShowWhen(false)
-            // The page of a public text: the same on the lock screen
-            .setVisibility(Notification.VISIBILITY_PUBLIC)
+            .setVisibility(Notification.VISIBILITY_PRIVATE)
+            .setPublicVersion(public)
             .addAction(Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_previous), getString(R.string.read_previous), action(1, ACTION_PREVIOUS)).build())
             .addAction(Notification.Action.Builder(Icon.createWithResource(this, if (playing) R.drawable.ic_pause else R.drawable.ic_play),
                 getString(if (playing) R.string.read_pause else R.string.read_play), action(2, ACTION_TOGGLE)).build())

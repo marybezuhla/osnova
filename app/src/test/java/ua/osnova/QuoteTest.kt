@@ -13,11 +13,19 @@ class QuoteTest {
     private val en = Constitution.parse(File("src/main/assets/constitution-en.json").readText())
 
     @Test fun partsKeepTheirPoints() {
-        // Article 85: part 1 with its 36 points, then part 2
+        // Article 85: part 1 with its points, then part 2
         val p = Quote.pieces(uk, uk.article("85")!!)
         assertEquals(listOf("1", "2"), p.map { it.number })
         assertTrue(p[0].paragraphs.count() > 30)
         assertEquals(listOf("1", "2"), Quote.pieces(uk, uk.article("3")!!).map { it.number })
+        // The lines of a point in small letters stay in it: article 150 has two parts, the second its last paragraph
+        val p150 = Quote.pieces(uk, uk.article("150")!!)
+        assertEquals(listOf("1", "2"), p150.map { it.number })
+        assertEquals(8..8, p150[1].paragraphs)
+        // An oath in quotation marks belongs to the part that brings it in (articles 79 and 104)
+        assertEquals(4, Quote.pieces(uk, uk.article("79")!!).size)
+        assertEquals(0..2, Quote.pieces(uk, uk.article("79")!!)[0].paragraphs)
+        assertEquals(4, Quote.pieces(en, en.article("104")!!).size)
     }
 
     @Test fun piecesCoverThePageOnce() {

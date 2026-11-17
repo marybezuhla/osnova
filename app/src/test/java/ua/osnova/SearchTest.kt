@@ -44,6 +44,11 @@ class SearchTest {
         assertTrue(Search.find(uk, "обов’язки").isNotEmpty())
         assertTrue(Search.find(en, "citizens").isNotEmpty())
         assertTrue(Search.find(uk, "").isEmpty())
+        // The order of the words does not matter, even when one starts the other
+        assertEquals(Search.find(uk, "суддя суд").size, Search.find(uk, "суд суддя").size)
+        assertTrue(Search.find(uk, "суд суддя").isNotEmpty())
+        // Something long pasted in: still quick, still an answer
+        Search.find(uk, "свобода ".repeat(5000))
         assertTrue(Search.find(uk, "zzzqx").isEmpty())
         // "ст. 24" finds where article 24 is named, not every word starting with "ст"
         val byNumber = Search.find(uk, "ст. 24")

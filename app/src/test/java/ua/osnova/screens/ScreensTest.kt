@@ -101,6 +101,14 @@ class ScreensTest {
         }
     }
 
+    // The reading-aloud sheet: voice, the voices to download, speed, sleep timer
+    @Config(qualifiers = "uk-w400dp-h2000dp-xhdpi")
+    @Test fun readAloudSettings() = shot("20-read-aloud-settings", Theme.NEBO) {
+        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.background)) {
+            ua.osnova.ui.ReadAloudSettings(ua.osnova.speech.ReadAloud.State(), onVoice = {}, onSpeed = {})
+        }
+    }
+
     // A tablet held sideways, and an unfolded phone
     @Config(qualifiers = "uk-w1280dp-h800dp-mdpi")
     @Test fun tablet() = reader("17-tablet-article", Theme.NEBO, "uk", "a:24")

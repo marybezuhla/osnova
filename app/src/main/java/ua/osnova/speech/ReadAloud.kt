@@ -34,16 +34,14 @@ import kotlinx.coroutines.withTimeoutOrNull
  * is one job with its own sound output, so stopping or skipping never touches sound another job is using.
  */
 object ReadAloud {
-    /** What is read: units (pages, paragraphs, a book's blocks) and their text. */
+    /** What is read: units (the Constitution's pages) and their text. */
     class Document(
         val id: String,
         val title: String,
         val count: () -> Int,
         val text: suspend (Int) -> String,
-        /** A unit that starts a chapter (a heading): «until the end of the chapter» stops before the next one. */
+        /** A unit that starts a chapter: «until the end of the chapter» stops before the next one. */
         val isHeading: (Int) -> Boolean = { false },
-        /** All units known (a PDF's text still being taken out: reading waits for more instead of ending). */
-        val complete: () -> Boolean = { true },
     )
 
     data class State(
@@ -75,6 +73,8 @@ object ReadAloud {
     const val NOTICE_NOT_DOWNLOADED = 4
     /** Osnova's own voice not downloaded, and the phone has no voice for it either: reading stops. */
     const val NOTICE_NOT_DOWNLOADED_NO_PHONE = 5
+    /** Osnova's own voice could not start (most often, too little free memory): the phone's voice reads meanwhile. */
+    const val NOTICE_OWN_FAILED = 6
     /** Paused this long, reading ends (the controls go and the voice's memory is freed). */
     private const val PAUSED_LIMIT = 30 * 60_000L
 
@@ -105,6 +105,8 @@ object ReadAloud {
     private var phone: PhoneVoice? = null
     /** "Not downloaded" said once per reading. */
     @Volatile private var toldNotDownloaded = false
+    /** "Could not start" said once per reading. */
+    @Volatile private var toldFailed = false
     private var phoneFailed = false
 
     /** A sentence and where it is. */
@@ -116,13 +118,11 @@ object ReadAloud {
         job?.cancel()
         doc = document
         toldNotDownloaded = false
+        toldFailed = false
         _state.value = State(document.id, document.title, playing = true, unit = unit, start = from, end = from, speed = speed, voice = voice, sleepAt = _state.value.sleepAt)
         ReadAloudService.show(app)
         run(unit, from, 0)
     }
-
-    /** The same document seen anew (the screen turned): its text comes from the new view from now on. */
-    fun rebind(document: Document) { if (_state.value.document == document.id) doc = document }
 
     fun pause(): Unit = onMain {
         job?.cancel(); job = null
@@ -214,7 +214,7 @@ object ReadAloud {
         var u = unit; var first = true
         while (true) {
             val d = doc ?: break
-            if (u >= d.count()) { if (d.complete()) break; delay(200); continue }
+            if (u >= d.count()) break
             val (text, spans) = sentences(u)
             for ((k, sp) in spans.withIndex()) {
                 if (first && sp.end <= from) continue
@@ -302,6 +302,7 @@ object ReadAloud {
             }
             // Osnova's own voice is there but could not say this one: skipped, never handed to another voice
             if (opened) return sound
+            if (!toldFailed) { toldFailed = true; _state.update { it.copy(notice = NOTICE_OWN_FAILED) } }
         }
         if (lang == "en" && _state.value.voice != PHONE && VoiceFiles.has(app, VoiceFiles.Voice.CORI)) {
             var opened = false
@@ -315,6 +316,7 @@ object ReadAloud {
                 english?.let { v -> try { withContext(synth) { v.read(text, speed) } } catch (e: CancellationException) { throw e } catch (e: Exception) { null } catch (e: OutOfMemoryError) { null } }
             }
             if (opened) return sound
+            if (!toldFailed) { toldFailed = true; _state.update { it.copy(notice = NOTICE_OWN_FAILED) } }
         }
         val sound = voices.withLock {
             if (phone == null && !phoneFailed) {

@@ -284,7 +284,6 @@ class EnglishVoice private constructor(
  * for anyone who prefers it. It writes each sentence to a file in the cache, read back and played like the others.
  */
 class PhoneVoice private constructor(private val tts: TextToSpeech, private val dir: File) : Voice {
-    @Volatile var language: Locale = Locale.getDefault()
     private val waiting = java.util.concurrent.ConcurrentHashMap<String, (Boolean) -> Unit>()
 
     init {
@@ -300,12 +299,12 @@ class PhoneVoice private constructor(private val tts: TextToSpeech, private val 
 
     override suspend fun read(text: String, speed: Float): Sound? {
         val lang = Sentences.language(text)
-        val locale = when (lang) { "uk" -> Locale.forLanguageTag("uk-UA"); "en" -> Locale.UK; else -> language }
+        val locale = when (lang) { "uk" -> Locale.forLanguageTag("uk-UA"); "en" -> Locale.UK; else -> Locale.getDefault() }
         if (tts.isLanguageAvailable(locale) < TextToSpeech.LANG_AVAILABLE) return null
         if (text.length > TextToSpeech.getMaxSpeechInputLength()) return null
-        // Only a voice that works on the phone itself and is installed: the document's text is not sent anywhere
-        val voice = offlineVoice(locale)
-        if (voice != null) tts.voice = voice else tts.language = locale
+        // Only a voice that works on the phone itself and is installed: the text is not sent anywhere (without
+        // one, the sentence is not read rather than handed to a voice that may go online)
+        tts.voice = offlineVoice(locale) ?: return null
         tts.setSpeechRate(speed)
         val id = "s" + System.nanoTime()
         // Each sentence its own file: a sentence stopped late can never delete the next one's
@@ -334,10 +333,10 @@ class PhoneVoice private constructor(private val tts: TextToSpeech, private val 
         tts.defaultVoice?.takeIf { same(it) && usable(it) } ?: tts.voices?.filter { same(it) && usable(it) }?.maxByOrNull { it.quality }
     } catch (e: Exception) { null }
 
-    /** Whether the phone has a voice for this sentence's language (else reading stops there, saying why). */
+    /** Whether the phone has an offline voice for this sentence's language (else reading stops there, saying why). */
     fun canSay(text: String): Boolean {
-        val locale = when (Sentences.language(text)) { "uk" -> Locale.forLanguageTag("uk-UA"); "en" -> Locale.UK; else -> language }
-        return try { tts.isLanguageAvailable(locale) >= TextToSpeech.LANG_AVAILABLE } catch (e: Exception) { false }
+        val locale = when (Sentences.language(text)) { "uk" -> Locale.forLanguageTag("uk-UA"); "en" -> Locale.UK; else -> Locale.getDefault() }
+        return try { tts.isLanguageAvailable(locale) >= TextToSpeech.LANG_AVAILABLE && offlineVoice(locale) != null } catch (e: Exception) { false }
     }
 
     companion object {

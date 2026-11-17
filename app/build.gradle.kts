@@ -57,7 +57,7 @@ android {
 
     buildTypes {
         release {
-            // Smaller APK: unused code and resources are left out (no reflection in Osnova, so no extra rules)
+            // Smaller APK: unused code and resources are left out (the extra rules in proguard-rules.pro: the voice runtime's classes, no log lines)
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -84,8 +84,8 @@ android {
     // Lets Android 13+ offer Osnova's own language setting (English, Ukrainian)
     androidResources {
         generateLocaleConfig = true
-        // The stress dictionary and the voice's small files are read straight from the APK (mapped): not compressed
-        noCompress += listOf("onnx", "bin")
+        // The stress dictionary is read straight from the APK (mapped): not compressed
+        noCompress += listOf("bin")
     }
 }
 

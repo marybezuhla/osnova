@@ -55,10 +55,13 @@ object VoiceFiles {
 
     private fun dir(context: Context) = File(context.filesDir, "voices").apply { mkdirs() }
 
-    /** A copy cut off by a closed app (up to 151 MB) is not left behind; called when the reading sheet or settings show. */
+    /**
+     * A copy cut off by a closed app (up to 151 MB) is not left behind, nor a voice deleted earlier and not
+     * brought back; called when the app starts and when the reading sheet shows.
+     */
     fun cleanUp(context: Context) {
         if (statuses.values.any { it.value.progress != null }) return
-        dir(context).listFiles { f -> f.name.endsWith(".part") }?.forEach { it.delete() }
+        dir(context).listFiles { f -> f.name.endsWith(".part") || f.name.endsWith(DELETED) }?.forEach { it.delete() }
     }
 
     /** The downloaded file, when it is there whole. */
@@ -123,8 +126,26 @@ object VoiceFiles {
         }
     }
 
+    /** Deleted, but kept aside until the next start so it can be brought back at once ([restore]). */
     fun delete(context: Context, v: Voice) {
-        File(dir(context), v.file).delete()
+        val f = File(dir(context), v.file)
+        val aside = File(dir(context), v.file + DELETED)
+        aside.delete()
+        // A rename keeps it whole for "Undo"; if even that fails, the voice simply goes
+        if (!f.renameTo(aside)) f.delete()
+        changed(v)
+    }
+
+    fun deleted(context: Context, v: Voice): Boolean = File(dir(context), v.file + DELETED).isFile
+
+    fun restore(context: Context, v: Voice) {
+        File(dir(context), v.file + DELETED).renameTo(File(dir(context), v.file))
+        changed(v)
+    }
+
+    private fun changed(v: Voice) {
         statuses.getValue(v).value = Status(done = statuses.getValue(v).value.done + 1)
     }
+
+    private const val DELETED = ".deleted"
 }

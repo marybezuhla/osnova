@@ -26,9 +26,8 @@
     <string name="next">Наступна сторінка: %1$s</string>
     <string name="text_uk">УКР</string>
     <string name="text_language_default">uk</string>
-    <string name="translation_note">Офіційний переклад Верховної Ради України. У разі розбіжностей чинним є текст українською.</string>
+    <string name="translation_note">Офіційний переклад, опублікований Верховною Радою України. У разі розбіжностей чинним є текст українською.</string>
     <string name="share">Поділитися цитатою</string>
-    <string name="share_title">Поділитися цитатою</string>
     <string name="share_all">Усе</string>
     <string name="share_choose">Вибрати частини</string>
     <string name="share_none">Виберіть хоча б одну частину.</string>
@@ -49,6 +48,15 @@
     <string name="quote_paragraphs">абзаци %1$s</string>
     <string name="loading">Відкриваю Конституцію…</string>
     <string name="app_language">Мова</string>
+    <string name="lang_auto">Як у телефоні</string>
+    <string name="search_found">Знайдено абзаців: %1$d</string>
+    <string name="read_no_sound">Не вдалося відтворити звук, тож читання зупинено. Спробуйте ще раз.</string>
+    <string name="read_own_failed">Голос Основи не вдалося запустити (найчастіше через брак вільної памʼяті), тож поки читає голос телефона.</string>
+    <string name="read_voice_deleted">Видалено</string>
+    <string name="erase">Стерти всі дані…</string>
+    <string name="erase_question">Стерти всі дані?</string>
+    <string name="erase_text">Закладки, місце читання, налаштування й завантажені голоси зникнуть з цього телефона. Текст Конституції лишиться. Основа закриється.</string>
+    <string name="erase_confirm">Стерти</string>
     <string name="look_mode">Світла чи темна</string>
     <string name="mode_auto">Авто</string>
     <string name="mode_light">Світла</string>
@@ -69,9 +77,9 @@
     <string name="theme_zoriana_nich">Зоряна ніч</string>
     <string name="about_osnova">Про Основу</string>
     <string name="about_title">Про застосунок</string>
-    <string name="about_text">© marybezuhla. Вільне програмне забезпечення за ліцензією GNU GPL версії 3 або (на ваш вибір) будь-якої новішої (GPL-3.0-or-later), без жодних гарантій. Код написано за допомогою ШІ (Claude, Anthropic) під керівництвом і з тестуванням авторки.\n\nБібліотеки: Jetpack Compose, Material 3 та інші бібліотеки AndroidX (Google, Apache 2.0); Kotlin і kotlinx.coroutines (JetBrains, Apache 2.0); ONNX Runtime (Microsoft, MIT); eSpeak NG (GPL-3.0-or-later). Голоси: Тетяна (robinhad/ukrainian-tts, MIT), Cori (Piper, MIT); словник наголосів ukrainian-word-stress (MIT). Перелік є у файлі NOTICE.md у коді.\n\nОснова не має доступу до інтернету й нічого не збирає. Закладки, місце, де ви зупинилися, і голоси лишаються тільки на цьому телефоні й не копіюються в хмару.</string>
+    <string name="about_text">© marybezuhla. Вільне програмне забезпечення за ліцензією GNU GPL версії 3 або (на ваш вибір) будь-якої новішої (GPL-3.0-or-later), без жодних гарантій. Код написано за допомогою ШІ (Claude, Anthropic) під керівництвом і з тестуванням авторки.\n\nБібліотеки: Jetpack Compose, Material 3 та інші бібліотеки AndroidX (Google, Apache 2.0); Kotlin і kotlinx.coroutines (JetBrains, Apache 2.0); ONNX Runtime (Microsoft, MIT); eSpeak NG (GPL-3.0-or-later). Голоси: Тетяна (robinhad/ukrainian-tts, MIT; записи Apache 2.0), Cori (Piper, MIT); словник наголосів ukrainian-word-stress (MIT); значки Material Icons (Google, Apache 2.0). Перелік є у файлі NOTICE.md у коді.\n\nОснова не має доступу до інтернету й нічого не збирає. Закладки, місце, де ви зупинилися, і голоси лишаються тільки на цьому телефоні й не копіюються ні в хмару, ні на новий телефон: на новому телефоні закладки доведеться додати знову, а голоси завантажити знову.</string>
     <string name="texts_title">Тексти</string>
-    <string name="texts_body">Конституція України від 28 червня 1996 року № 254к/96-ВР у редакції від 1 січня 2020 року (зі змінами, останні внесено Законом № 27-IX від 3 вересня 2019 року), слово в слово, як її публікує Верховна Рада України на zakon.rada.gov.ua. Англійський текст є офіційним перекладом Верховної Ради; у разі розбіжностей чинним є текст українською. Офіційні документи та їхні офіційні переклади не охороняються авторським правом.\n\nЦе не юридична консультація. Офіційний текст дивіться на сайті Верховної Ради.</string>
+    <string name="texts_body">Конституція України від 28 червня 1996 року № 254к/96-ВР у редакції від 1 січня 2020 року (зі змінами, останні внесено Законом № 27-IX від 3 вересня 2019 року), слово в слово, як її публікує Верховна Рада України на zakon.rada.gov.ua. Англійський текст є офіційним перекладом, опублікованим Верховною Радою; у разі розбіжностей чинним є текст українською. Офіційні документи та їхні офіційні переклади не охороняються авторським правом.\n\nЦе не юридична консультація. Офіційний текст дивіться на сайті Верховної Ради.</string>
     <string name="texts_open">Офіційний текст</string>
     <string name="about_version">Версія %1$s</string>
     <string name="source_code">Вихідний код</string>
@@ -110,7 +118,7 @@
     <string name="read_stop">Зупинити читання</string>
     <string name="read_settings">Голос і налаштування</string>
     <string name="read_voice">Голос</string>
-    <string name="read_voice_phone">Голос телефону</string>
+    <string name="read_voice_phone">Голос телефона</string>
     <string name="read_voice_phone_hint">Як налаштовано в Android; для будь-якої мови, яку знає телефон.</string>
     <string name="read_speed">Швидкість · %1$s×</string>
     <string name="read_sleep">Таймер сну</string>
@@ -120,10 +128,10 @@
     <string name="read_preparing">Голос готується…</string>
     <string name="read_no_voice">Немає голосу для цього тексту: українського голосу на телефоні теж немає.</string>
     <string name="read_no_language">На телефоні немає голосу для цієї мови, тож речення пропущено. Голоси можна додати в налаштуваннях Android, «Синтез мовлення».</string>
-    <string name="read_not_downloaded">Голос Основи ще не завантажено, тож поки що читає голос телефону. Завантажте його в «Голос».</string>
+    <string name="read_not_downloaded">Голос Основи ще не завантажено, тож поки що читає голос телефона. Завантажте його в «Голос».</string>
     <string name="read_not_downloaded_no_phone">Голос Основи ще не завантажено, а на телефоні такого голосу немає. Завантажте його в «Голос».</string>
     <string name="read_voices">Голоси Основи</string>
-    <string name="read_voices_how">Кожен голос завантажується один раз: «Завантажити» відкриває файл у браузері (з GitHub, де лежить Писанка, чи з Hugging Face; ці сайти бачать IP-адресу телефону), потім «Вибрати файл» копіює його в Основу. Приймається лише точний файл голосу; після цього файл у «Завантаженнях» можна видалити.</string>
+    <string name="read_voices_how">Кожен голос завантажується один раз. «Завантажити» відкриває файл у браузері (з GitHub чи Hugging Face; ці сайти бачать IP-адресу телефона). Потім «Вибрати файл» копіює його в Основу: приймається лише точний файл голосу. Після цього файл у «Завантаженнях» можна видалити.</string>
     <string name="read_voice_uk">Український: Тетяна (152 МБ)</string>
     <string name="read_voice_en">Англійський: Cori (64 МБ)</string>
     <string name="read_voice_ready">Завантажено</string>
@@ -131,12 +139,11 @@
     <string name="read_voice_download">Завантажити</string>
     <string name="read_voice_pick">Вибрати файл</string>
     <string name="read_voice_delete">Видалити</string>
-    <string name="read_voice_delete_ask">Видалити цей голос? Читання зупиниться; щоб знову читати ним, файл доведеться завантажити ще раз.</string>
     <string name="read_voice_copying">Копіюю… %1$d%%</string>
     <string name="read_voice_wrong">Це не файл голосу: приймається лише точний файл.</string>
-    <string name="read_voice_no_space">Замало місця на телефоні.</string>
+    <string name="read_voice_no_space">Замало місця: потрібно близько 210 МБ вільних для українського голосу чи 120 МБ для англійського. Звільніть місце й спробуйте ще раз.</string>
     <string name="read_voice_failed">Не вдалося скопіювати файл. Спробуйте ще раз.</string>
     <string name="read_sleep_left">Таймер сну: %1$s</string>
     <string name="read_voice_own">Голос Основи</string>
-    <string name="read_voice_own_hint">Українська й англійська: жіночі голоси Основи, читають без інтернету; їх треба один раз завантажити. Інші мови читає голос телефону.</string>
+    <string name="read_voice_own_hint">Українська й англійська: жіночі голоси Основи, читають без інтернету; їх треба один раз завантажити. Інші мови читає голос телефона.</string>
 </resources>

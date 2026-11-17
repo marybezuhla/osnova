@@ -27,7 +27,7 @@ import ua.osnova.R
 import ua.osnova.ui.theme.Look
 import ua.osnova.ui.theme.LookSettings
 
-/** The app's language, light or dark, the day and night themes (as in Komora), and the way to "About". */
+/** The app's language, light or dark, the day and night themes (as in Komora), "About", and erasing all data. */
 @Composable
 fun SettingsPage(
     look: Look,
@@ -51,6 +51,8 @@ fun SettingsPage(
                 ) {
                     Text(stringResource(R.string.about_osnova), style = MaterialTheme.typography.titleMedium)
                 }
+                Spacer(Modifier.height(8.dp))
+                EraseAll()
             }
         }
     }

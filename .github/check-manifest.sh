@@ -41,15 +41,21 @@ else:
         errors.append("android:debuggable must not be true")
     if "networkSecurityConfig" not in app["attrs"]:
         errors.append("android:networkSecurityConfig is missing")
+    if "dataExtractionRules" not in app["attrs"]:
+        errors.append("android:dataExtractionRules is missing")
 
 ALLOWED = {"ua.osnova.ui.MainActivity"}
+# Open to others only behind a permission that only the system holds (a library's own normal permission
+# could be asked for by any app): android.permission.DUMP guards AndroidX's profile installer
+SYSTEM_ONLY = {"android.permission.DUMP"}
 for e in elems:
     if e["tag"] not in ("activity", "activity-alias", "service", "receiver", "provider"):
         continue
     name = e["attrs"].get("name", "").split(" ")[0].strip('"')
     exported = val(e["attrs"].get("exported")) in ("true", "0xffffffff")
-    if exported and name not in ALLOWED and "permission" not in e["attrs"]:
-        errors.append(f"{e['tag']} {name} is exported without a permission")
+    permission = e["attrs"].get("permission", "").split(" ")[0].strip('"')
+    if exported and name not in ALLOWED and permission not in SYSTEM_ONLY:
+        errors.append(f"{e['tag']} {name} is exported without a system-only permission ({permission or 'none'})")
 
 if errors:
     for err in errors:

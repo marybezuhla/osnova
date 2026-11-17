@@ -21,7 +21,7 @@
     <string name="chapter_titled" translatable="false">%1$s. %2$s</string>
     <string name="article">Article %1$s</string>
     <string name="articles_range">Articles %1$s to %2$s</string>
-    <string name="chapter_vii_excluded">VII. Prosecutor\'s office: chapter excluded in 2016</string>
+    <string name="chapter_vii_excluded">VII. Prosecutor\'s Office: chapter repealed in 2016</string>
     <string name="notes">Notes of the official edition</string>
     <string name="previous">Previous page: %1$s</string>
     <string name="next">Next page: %1$s</string>
@@ -30,9 +30,8 @@
     <string name="text_uk">UKR</string>
     <string name="text_en" translatable="false">ENG</string>
     <string name="text_language_default">en</string>
-    <string name="translation_note">Official translation by the Verkhovna Rada of Ukraine. In case of any difference, the Ukrainian text applies.</string>
+    <string name="translation_note">Official translation published by the Verkhovna Rada of Ukraine. In case of any difference, the Ukrainian text applies.</string>
     <string name="share">Share a quote</string>
-    <string name="share_title">Share a quote</string>
     <string name="share_all">All of it</string>
     <string name="share_choose">Choose parts</string>
     <string name="share_none">Choose at least one part.</string>
@@ -41,7 +40,7 @@
     <string name="share_send">Share</string>
     <string name="quote_open">“</string>
     <string name="quote_close">”</string>
-    <string name="quote_constitution">Constitution of Ukraine</string>
+    <string name="quote_constitution">Constitution of Ukraine (official translation)</string>
     <string name="quote_article">Article %1$s</string>
     <string name="quote_chapter">Chapter %1$s</string>
     <string name="quote_preamble">Preamble</string>
@@ -53,6 +52,16 @@
     <string name="quote_paragraphs">paragraphs %1$s</string>
     <string name="loading">Opening the Constitution…</string>
     <string name="app_language">Language</string>
+    <string name="lang_auto">As on the phone</string>
+    <string name="search_found">Paragraphs found: %1$d</string>
+    <string name="label_for" translatable="false">%1$s: %2$s</string>
+    <string name="read_no_sound">Could not play the sound, so reading stopped. Try again.</string>
+    <string name="read_own_failed">Osnova\'s voice could not start (most often for lack of free memory), so the phone\'s voice reads for now.</string>
+    <string name="read_voice_deleted">Deleted</string>
+    <string name="erase">Erase all data…</string>
+    <string name="erase_question">Erase all data?</string>
+    <string name="erase_text">Bookmarks, the place you stopped, the settings and the downloaded voices will be erased from this phone. The Constitution\'s text stays. Osnova will close.</string>
+    <string name="erase_confirm">Erase</string>
     <string name="lang_uk" translatable="false">Українська</string>
     <string name="lang_en" translatable="false">English</string>
     <string name="look_mode">Light or dark</string>
@@ -75,9 +84,9 @@
     <string name="theme_zoriana_nich">Starry night</string>
     <string name="about_osnova">About Osnova</string>
     <string name="about_title">About the app</string>
-    <string name="about_text">© marybezuhla. Free software under the GNU GPL version 3 or (at your option) any later version (GPL-3.0-or-later), without any warranty. The code was written with AI (Claude, Anthropic), directed and tested by the author.\n\nLibraries: Jetpack Compose, Material 3 and other AndroidX libraries (Google, Apache 2.0); Kotlin and kotlinx.coroutines (JetBrains, Apache 2.0); ONNX Runtime (Microsoft, MIT); eSpeak NG (GPL-3.0-or-later). Voices: Tetiana (robinhad/ukrainian-tts, MIT), Cori (Piper, MIT); stress dictionary ukrainian-word-stress (MIT). The full list is in NOTICE.md in the code.\n\nOsnova has no access to the internet and collects nothing. Bookmarks, the place you stopped and the voices stay on this phone only and are not copied to the cloud.</string>
+    <string name="about_text">© marybezuhla. Free software under the GNU GPL version 3 or (at your option) any later version (GPL-3.0-or-later), without any warranty. The code was written with AI (Claude, Anthropic), directed and tested by the author.\n\nLibraries: Jetpack Compose, Material 3 and other AndroidX libraries (Google, Apache 2.0); Kotlin and kotlinx.coroutines (JetBrains, Apache 2.0); ONNX Runtime (Microsoft, MIT); eSpeak NG (GPL-3.0-or-later). Voices: Tetiana (robinhad/ukrainian-tts, MIT; recordings Apache 2.0), Cori (Piper, MIT); stress dictionary ukrainian-word-stress (MIT); Material Icons (Google, Apache 2.0). The full list is in NOTICE.md in the code.\n\nOsnova has no access to the internet and collects nothing. Bookmarks, the place you stopped and the voices stay on this phone only and are not copied to the cloud or to a new phone: on a new phone, add the bookmarks again and download the voices again.</string>
     <string name="texts_title">The texts</string>
-    <string name="texts_body">The Constitution of Ukraine of 28 June 1996 No. 254к/96-ВР, as amended up to Law No. 27-IX of 3 September 2019 (in force from 1 January 2020), word for word as published by the Verkhovna Rada of Ukraine on zakon.rada.gov.ua. The English text is the Verkhovna Rada\'s official translation; in case of any difference, the Ukrainian text applies. Official documents and their official translations are not protected by copyright.\n\nThis is not a legal consultation. For an official copy, see the Verkhovna Rada\'s site.</string>
+    <string name="texts_body">The Constitution of Ukraine of 28 June 1996 No. 254к/96-ВР, as amended up to Law No. 27-IX of 3 September 2019 (in force from 1 January 2020), word for word as published by the Verkhovna Rada of Ukraine on zakon.rada.gov.ua. The English text is the official translation published by the Verkhovna Rada; in case of any difference, the Ukrainian text applies. Official documents and their official translations are not protected by copyright.\n\nThis is not a legal consultation. For an official copy, see the Verkhovna Rada\'s site.</string>
     <string name="texts_open">Official text</string>
     <string name="about_version">Version %1$s</string>
     <string name="source_code">Source code</string>
@@ -128,11 +137,11 @@
     <string name="read_sleep_chapter">To the end of the chapter</string>
     <string name="read_preparing">Getting the voice ready…</string>
     <string name="read_no_voice">No voice for this text: the phone has no Ukrainian voice either.</string>
-    <string name="read_no_language">The phone has no voice for this language, so the sentence was skipped. Voices are added in Android settings, «Text-to-speech».</string>
-    <string name="read_not_downloaded">Osnova\'s voice is not downloaded yet, so the phone\'s voice reads for now. Download it in «Voice».</string>
-    <string name="read_not_downloaded_no_phone">Osnova\'s voice is not downloaded yet, and the phone has no such voice either. Download it in «Voice».</string>
+    <string name="read_no_language">The phone has no voice for this language, so the sentence was skipped. Voices are added in Android settings, “Text-to-speech”.</string>
+    <string name="read_not_downloaded">Osnova\'s voice is not downloaded yet, so the phone\'s voice reads for now. Download it in “Voice”.</string>
+    <string name="read_not_downloaded_no_phone">Osnova\'s voice is not downloaded yet, and the phone has no such voice either. Download it in “Voice”.</string>
     <string name="read_voices">Osnova\'s voices</string>
-    <string name="read_voices_how">Each voice is downloaded once: «Download» opens the file in the browser (from GitHub, where Pysanka lives, or from Hugging Face; those sites see the phone\'s IP address), then «Pick the file» copies it into Osnova. Only the exact voice file is accepted; afterwards the file in «Downloads» can be deleted.</string>
+    <string name="read_voices_how">Each voice is downloaded once. “Download” opens the file in your browser (from GitHub or Hugging Face; those sites see the phone\'s IP address). Then “Pick the file” copies it into Osnova: only the exact voice file is accepted. Afterwards the file in Downloads can be deleted.</string>
     <string name="read_voice_uk">Ukrainian: Tetiana (152 MB)</string>
     <string name="read_voice_en">English: Cori (64 MB)</string>
     <string name="read_voice_ready">Downloaded</string>
@@ -140,10 +149,9 @@
     <string name="read_voice_download">Download</string>
     <string name="read_voice_pick">Pick the file</string>
     <string name="read_voice_delete">Delete</string>
-    <string name="read_voice_delete_ask">Delete this voice? Reading stops; to read with it again, the file will have to be downloaded again.</string>
     <string name="read_voice_copying">Copying… %1$d%%</string>
     <string name="read_voice_wrong">This is not the voice file: only the exact file is accepted.</string>
-    <string name="read_voice_no_space">Not enough space on the phone.</string>
+    <string name="read_voice_no_space">Not enough space: about 210 MB free is needed for the Ukrainian voice, or 120 MB for the English one. Free some space and try again.</string>
     <string name="read_voice_failed">Could not copy the file. Try again.</string>
     <string name="read_sleep_left">Sleep timer: %1$s</string>
     <string name="read_voice_own">Osnova\'s voice</string>

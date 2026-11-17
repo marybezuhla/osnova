@@ -1,5 +1,6 @@
 package ua.osnova.ui
 
+import android.app.Activity
 import android.content.res.Resources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -83,6 +88,8 @@ fun ReaderScreen(
     val context = LocalContext.current
     val pager = rememberPagerState(initialPage = c.indexOf(start) ?: 0) { c.pages.size }
     val scope = rememberCoroutineScope()
+    // Opened again at another page (a tap during the fade back): go there
+    LaunchedEffect(start) { c.indexOf(start)?.let { if (it != pager.currentPage) pager.scrollToPage(it) } }
     // The page settled on is the place to come back to
     val shown by rememberUpdatedState(onShown)
     LaunchedEffect(pager, c) {
@@ -90,14 +97,16 @@ fun ReaderScreen(
     }
     val current = c.pages[pager.currentPage]
     val marked = current.key in bookmarks
-    var sharing by rememberSaveable { mutableStateOf(false) }
-    if (sharing) ShareSheet(c, current, lang) { sharing = false }
+    // The page shared is the one open when "Share" was tapped, even while reading aloud turns the pages
+    var sharing by rememberSaveable { mutableStateOf<String?>(null) }
+    sharing?.let(c::indexOf)?.let { ShareSheet(c, c.pages[it], lang) { sharing = null } }
 
     // Reading aloud: this text in this language is one document; it stops when the reader closes or the
     // language changes. The pages turn by themselves to follow it.
     val doc = remember(c, res, lang) { ReadingText(c, res, lang) }
     val readingHere = reading.document == doc.id
-    DisposableEffect(doc.id) { onDispose { ReadAloud.stop(doc.id) } }
+    // (not when Android only makes the screen anew: dark mode, font size, the app's language)
+    DisposableEffect(doc.id) { onDispose { if ((context as? Activity)?.isChangingConfigurations != true) ReadAloud.stop(doc.id) } }
     LaunchedEffect(readingHere, reading.unit) {
         if (readingHere && reading.playing && reading.unit in c.pages.indices && pager.currentPage != reading.unit) {
             pager.animateScrollToPage(reading.unit)
@@ -107,7 +116,6 @@ fun ReaderScreen(
     if (readSettings) {
         ReadAloudSheet(
             reading,
-            chapters = true,
             onVoice = { ReadAloud.setVoice(it); onReadVoice(it) },
             onSpeed = { ReadAloud.setSpeed(it); onReadSpeed(it) },
             onDismiss = { readSettings = false },
@@ -116,13 +124,14 @@ fun ReaderScreen(
     Scaffold(
         containerColor = scheme.background,
         topBar = {
-            Bar(pageShort(res, current), onBack) {
+            // The page's name is the heading in the page itself (whole, at any font size); the bar holds the actions
+            Bar("", onBack) {
                 if (!readingHere) {
                     IconButton(onClick = { ReadAloud.start(context, doc.document, pager.currentPage, speed = readSpeed, voice = readVoice) }) {
                         Icon(painterResource(R.drawable.ic_read_aloud), contentDescription = stringResource(R.string.read_aloud_start))
                     }
                 }
-                IconButton(onClick = { sharing = true }) {
+                IconButton(onClick = { sharing = current.key }) {
                     Icon(painterResource(R.drawable.ic_share), contentDescription = stringResource(R.string.share))
                 }
                 IconButton(onClick = { onToggleBookmark(current.key) }) {
@@ -149,29 +158,35 @@ fun ReaderScreen(
             }
             if (readingHere) {
                 ReadAloudBar(reading, onSettings = { readSettings = true })
-            } else Row(
-                Modifier.widthIn(max = READING_WIDTH).fillMaxWidth().padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                val i = pager.currentPage
-                if (i > 0) {
-                    val name = pageShort(res, c.pages[i - 1])
-                    val said = res.getString(R.string.previous, name)
-                    TextButton(
-                        onClick = { scope.launch { pager.animateScrollToPage(i - 1) } },
-                        modifier = Modifier.semantics { contentDescription = said },
-                    ) { Text(res.getString(R.string.previous_short, name)) }
-                } else {
-                    Spacer(Modifier.height(48.dp))
-                }
-                if (i < c.pages.lastIndex) {
-                    val name = pageShort(res, c.pages[i + 1])
-                    val said = res.getString(R.string.next, name)
-                    TextButton(
-                        onClick = { scope.launch { pager.animateScrollToPage(i + 1) } },
-                        modifier = Modifier.semantics { contentDescription = said },
-                    ) { Text(res.getString(R.string.next_short, name)) }
-                }
+            } else {
+                PageButtons(res, c, pager.currentPage) { scope.launch { pager.animateScrollToPage(it) } }
+            }
+        }
+    }
+}
+
+/** "‹ Стаття 2" and "Стаття 4 ›": one line each, smaller letters rather than a broken line with a large font. */
+@Composable
+private fun PageButtons(res: Resources, c: Constitution, i: Int, go: (Int) -> Unit) {
+    Row(
+        Modifier.widthIn(max = READING_WIDTH).fillMaxWidth().padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        for ((to, label, said) in listOf(Triple(i - 1, R.string.previous_short, R.string.previous), Triple(i + 1, R.string.next_short, R.string.next))) {
+            if (to !in c.pages.indices) {
+                Spacer(Modifier.weight(1f).height(48.dp))
+                continue
+            }
+            val name = pageShort(res, c.pages[to])
+            val says = res.getString(said, name)
+            val style = MaterialTheme.typography.labelLarge.merge(color = MaterialTheme.colorScheme.primary)
+            TextButton(onClick = { go(to) }, modifier = Modifier.weight(1f).semantics { contentDescription = says }) {
+                BasicText(
+                    res.getString(label, name),
+                    style = style,
+                    maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = style.fontSize, stepSize = 0.5.sp),
+                )
             }
         }
     }
@@ -197,16 +212,14 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
         val b = (r.last + 1 - starts[j]).coerceIn(0, paras[j].length)
         return if (a < b) a..<b else null
     }
-    val chapter = when (page) {
-        is Page.Of -> page.chapter
-        is Page.Text -> page.chapter
-        Page.Preamble -> null
-    }
+    // TalkBack reads the text in its own language, whatever the app's
+    val locale = LocaleList(lang)
     val list = rememberLazyListState()
     val spokenParagraph = paras.indices.firstOrNull { spokenIn(it) != null }
     // The sentence read aloud stays in sight
     LaunchedEffect(spokenParagraph) {
-        if (spokenParagraph != null) list.animateScrollToItem(spokenParagraph + if (chapter != null) 1 else 0)
+        // (the items before the paragraphs: the heading, and an article's chapter)
+        if (spokenParagraph != null) list.animateScrollToItem(spokenParagraph + if (page is Page.Of) 2 else 1)
     }
     val mark = SpanStyle(background = scheme.secondaryContainer)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -218,25 +231,33 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // The bar on top names the page; above the text, the chapter it belongs to (or, for the
-                // transitional provisions, the chapter's own full name)
-                if (chapter != null) {
+                // An article: its chapter above its name. The preamble and the transitional provisions: the name only.
+                if (page is Page.Of) {
                     item {
                         Text(
-                            chapterName(res, chapter.num, chapter.title, lang),
-                            style = if (page is Page.Text) MaterialTheme.typography.titleLarge else MaterialTheme.typography.labelLarge,
-                            fontWeight = if (page is Page.Text) FontWeight.SemiBold else null,
-                            color = if (page is Page.Text) scheme.onBackground else scheme.onSurfaceVariant,
+                            chapterName(res, page.chapter.num, page.chapter.title, lang),
+                            style = MaterialTheme.typography.labelLarge.copy(localeList = locale),
+                            color = scheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().semantics { heading() },
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
+                }
+                item {
+                    Text(
+                        pageTitle(res, page, lang),
+                        style = MaterialTheme.typography.titleLarge.copy(localeList = locale),
+                        fontWeight = FontWeight.SemiBold,
+                        color = scheme.onBackground,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().semantics { heading() },
+                    )
                 }
                 items(paras.size) { j ->
                     val p = paras[j]
                     val on = spokenIn(j)
                     val text = if (on == null) AnnotatedString(p) else buildAnnotatedString { append(p); addStyle(mark, on.first, on.last + 1) }
-                    Text(text, style = MaterialTheme.typography.bodyLarge, color = scheme.onBackground)
+                    Text(text, style = MaterialTheme.typography.bodyLarge.copy(localeList = locale), color = scheme.onBackground)
                 }
                 if (isLast) {
                     item {
@@ -258,7 +279,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                             modifier = Modifier.padding(top = 12.dp).semantics { heading() },
                         )
                     }
-                    items(notes) { n -> Text(n, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant) }
+                    items(notes) { n -> Text(n, style = MaterialTheme.typography.bodySmall.copy(localeList = locale), color = scheme.onSurfaceVariant) }
                 }
                 if (lang == "en") {
                     item {

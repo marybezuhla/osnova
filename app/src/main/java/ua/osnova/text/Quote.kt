@@ -16,12 +16,10 @@ object Quote {
         val paras = c.paragraphs(page)
         if (page == Page.Preamble) return paras.indices.map { Piece((it + 1).toString(), it..it) }
         // Where a new piece starts, and its number
-        val starts = paras.indices.mapNotNull { i ->
-            when (page) {
-                is Page.Of -> i.takeIf { !POINT_OF_PART.containsMatchIn(paras[i]) }
-                is Page.Text -> i.takeIf { POINT_OF_CHAPTER.containsMatchIn(paras[i]) }
-                Page.Preamble -> null
-            }
+        val starts = when (page) {
+            is Page.Of -> partStarts(paras)
+            is Page.Text -> paras.indices.filter { POINT_OF_CHAPTER.containsMatchIn(paras[it]) }
+            Page.Preamble -> emptyList()
         }
         return starts.mapIndexed { n, start ->
             val end = (starts.getOrNull(n + 1) ?: paras.size) - 1
@@ -33,7 +31,31 @@ object Quote {
         }
     }
 
-    /** The text to send: the chosen paragraphs in quotation marks, then a line with the source. */
+    /** What comes before the source on its own line. */
+    const val SOURCE_MARK = "— "
+
+    /** The chosen paragraphs in quotation marks. */
+    fun body(paragraphs: List<String>, open: String, close: String): String = open + paragraphs.joinToString("\n") + close
+
+    /**
+     * The paragraphs that begin a part of an article. Not a new part: a point ("1)", "а)"), a paragraph in small
+     * letters (the lines of a point, as in article 150), or the words of an oath in quotation marks, until the
+     * quotation closes (articles 79 and 104).
+     */
+    private fun partStarts(paras: List<String>): List<Int> {
+        var quoted = false
+        return paras.indices.filter { i ->
+            val p = paras[i]
+            val starts = !quoted && !POINT_OF_PART.containsMatchIn(p) && p.first().isUpperCase()
+            quoted = quoted != (quotes(p) % 2 == 1)
+            starts
+        }
+    }
+
+    /** Quotation marks in a paragraph: the Ukrainian text uses " for both ends, the English “ and ”. */
+    private fun quotes(p: String) = p.count { it == '"' || it == '“' || it == '”' }
+
+    /** The text to send: the quote, then a line with the source. */
     fun text(paragraphs: List<String>, open: String, close: String, source: String): String =
-        open + paragraphs.joinToString("\n") + close + "\n— " + source
+        body(paragraphs, open, close) + "\n" + SOURCE_MARK + source
 }

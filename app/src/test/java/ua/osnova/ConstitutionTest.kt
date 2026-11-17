@@ -45,6 +45,13 @@ class ConstitutionTest {
         }
     }
 
+    @Test fun noWordBrokenAtALineEnd() {
+        // The PDF breaks lines at hyphens ("self-" / "government"): the word must come back whole
+        val broken = Regex("[A-Za-z]- [A-Za-z]")
+        for (p in en.pages) for (t in en.paragraphs(p) + en.notes(p)) assertTrue(t, !broken.containsMatchIn(t))
+        assertTrue(en.pages.any { p -> en.paragraphs(p).any { "self-government" in it } })
+    }
+
     @Test fun everyPageHasText() {
         for (c in listOf(uk, en)) for (p in c.pages) {
             val text = c.paragraphs(p)

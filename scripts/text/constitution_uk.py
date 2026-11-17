@@ -14,6 +14,8 @@ import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "source", "constitution-uk-2020-01-01.txt")
+# The source as checked against zakon.rada.gov.ua (17.11.2026): any change to it shows here, in reviewed code
+SRC_SHA256 = "d188c728cf9c2ade66a97cbf75075e004010842d086c21695de5ecd00009e4ed"
 OUT = os.path.join(HERE, "..", "..", "app", "src", "main", "assets", "constitution-uk.json")
 
 SECTION = re.compile(r"^Розділ ([IVXL]+)$")
@@ -25,6 +27,9 @@ def norm(s):
 
 
 def main():
+    import hashlib
+    if hashlib.sha256(open(SRC, "rb").read()).hexdigest() != SRC_SHA256:
+        sys.exit("The source text is not the pinned one")
     lines = [norm(l) for l in open(SRC, encoding="utf-8").read().split("\n")]
     # Everything before the preamble is the edition's list of amendments and court decisions
     start = next(i for i, l in enumerate(lines) if l.startswith("Верховна Рада України від імені Українського народу"))
@@ -88,7 +93,7 @@ def main():
     out = {
         "title": "Конституція України",
         "act": "Конституція України від 28.06.1996 № 254к/96-ВР",
-        "edition": "Редакція від 01.01.2020, підстава — Закон № 27-IX",
+        "edition": "Редакція від 01.01.2020 (останні зміни внесено Законом № 27-IX)",
         "source": "https://zakon.rada.gov.ua/laws/show/254к/96-вр",
         "retrieved": "31.10.2026",
         "license": "Офіційний документ; джерело — Верховна Рада України, zakon.rada.gov.ua (CC BY 4.0)",

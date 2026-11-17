@@ -11,6 +11,9 @@ object Search {
     class Hit(val page: Int, val paragraph: Int, val excerpt: String, val marks: List<IntRange>)
 
     private const val MAX_HITS = 200
+    /** A query longer than this (something pasted) is cut: searching stays quick on any phone. */
+    private const val MAX_QUERY = 100
+    private const val MAX_WORDS = 10
     /** How much text to show before the first word found, so it is never cut off the end of the line. */
     private const val BEFORE = 50
     private const val EXCERPT = 220
@@ -24,7 +27,7 @@ object Search {
     }
 
     /** The beginnings of the query's words that a word in the text must start with. */
-    fun stems(query: String): List<String> = WORD.findAll(normalize(query)).map { it.value.trim('\'') }
+    fun stems(query: String): List<String> = WORD.findAll(normalize(query.take(MAX_QUERY))).map { it.value.trim('\'') }
         .filter { it.isNotEmpty() }
         .map { w ->
             when {
@@ -35,7 +38,7 @@ object Search {
                 else -> w
             }
         }
-        .distinct().toList()
+        .distinct().take(MAX_WORDS).toList()
 
     /** The article number in a query like "24", "ст. 24", "стаття 131-1" or "article 24", or null. */
     fun articleNumber(query: String): String? = NUMBER.find(normalize(query.trim()))?.groupValues?.get(1)
@@ -65,8 +68,10 @@ object Search {
         val marks = ArrayList<IntRange>()
         for (m in WORD.findAll(norm)) {
             val word = m.value.trim('\'')
-            val stem = stems.firstOrNull { s -> if (s.any { it.isDigit() }) word == s else word.startsWith(s) } ?: continue
-            found += stem
+            // A word counts for every stem it starts with ("суддя" for both "суд" and "судд")
+            val its = stems.filter { s -> if (s.any { it.isDigit() }) word == s else word.startsWith(s) }
+            if (its.isEmpty()) continue
+            found += its
             marks += m.range
         }
         return marks.takeIf { found.size == stems.size }

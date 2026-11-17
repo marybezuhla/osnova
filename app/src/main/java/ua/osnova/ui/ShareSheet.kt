@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ua.osnova.R
@@ -71,14 +72,16 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
     val picked = if (choosing) pieces.filterIndexed { i, _ -> i in chosen } else pieces
     val source = picked.takeIf { it.isNotEmpty() }?.let { quoteSource(res, page, if (it.size == pieces.size) null else it) }
     val words = picked.flatMap { piece -> piece.paragraphs.map(paras::get) }
-    val quote = source?.let { Quote.text(words, res.getString(R.string.quote_open), res.getString(R.string.quote_close), it) }
+    val open = res.getString(R.string.quote_open)
+    val close = res.getString(R.string.quote_close)
+    val quote = source?.let { Quote.text(words, open, close, it) }
     var copied by remember(quote) { mutableStateOf(false) }
 
     Column(
         Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = 20.dp).padding(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(R.string.share_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold,
+        Text(stringResource(R.string.share), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold,
             color = scheme.onBackground, modifier = Modifier.semantics { heading() })
         if (pieces.size > 1) {
             ua.osnova.ui.theme.Segments(
@@ -117,9 +120,10 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                 if (source == null) {
                     Text(stringResource(R.string.share_none), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
                 } else {
-                    Text(res.getString(R.string.quote_open) + words.joinToString("\n") + res.getString(R.string.quote_close),
-                        style = MaterialTheme.typography.bodyMedium, color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis)
-                    Text("— $source", style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                    Text(Quote.body(words, open, close), style = MaterialTheme.typography.bodyMedium.copy(localeList = LocaleList(lang)),
+                        color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis)
+                    Text(Quote.SOURCE_MARK + source, style = MaterialTheme.typography.bodyMedium.copy(localeList = LocaleList(lang)),
+                        color = scheme.onSurfaceVariant)
                 }
             }
         }

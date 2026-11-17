@@ -70,6 +70,8 @@ class MainActivity : ComponentActivity() {
         last.value = places.last()
         readSpeed.value = places.readSpeed()
         readVoice.value = places.readVoice()
+        // A voice deleted last time and not brought back goes now
+        ua.osnova.speech.VoiceFiles.cleanUp(this)
         // Until chosen, the text is in the app's own language
         textLang.value = places.textLanguage() ?: getString(R.string.text_language_default)
         setContent {
@@ -101,8 +103,9 @@ class MainActivity : ComponentActivity() {
     private fun App(texts: Map<String, Constitution>) {
         var path by rememberSaveable { mutableStateOf(HOME) }
         val steps = path.split(SEP)
-        fun go(step: String) { path = path + SEP + step }
-        fun back() { path = steps.dropLast(1).joinToString(SEP) }
+        // A double tap opens one screen, not two on top of each other
+        fun go(step: String) { if (path.split(SEP).last() != step) path = path + SEP + step }
+        fun back() { path.split(SEP).let { if (it.size > 1) path = it.dropLast(1).joinToString(SEP) } }
         BackHandler(enabled = steps.size > 1) { back() }
 
         val lang = textLang.value
@@ -169,8 +172,10 @@ class MainActivity : ComponentActivity() {
                         onShown = { key ->
                             last.value = key
                             places.setLast(key)
+                            // A reader still fading out after "back" must not write over the path
+                            if (!path.split(SEP).last().startsWith("read:")) return@ReaderScreen
                             // The path keeps the page now shown, so the way back and a restart come back to it
-                            path = (steps.dropLast(1) + "read:$key").joinToString(SEP)
+                            path = (path.split(SEP).dropLast(1) + "read:$key").joinToString(SEP)
                         },
                     )
                     step == SETTINGS -> SettingsPage(

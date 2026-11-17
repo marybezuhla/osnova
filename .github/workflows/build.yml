@@ -24,6 +24,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -45,7 +47,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sudo apt-get install -y -qq poppler-utils >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils >/dev/null
+          pdftotext -v 2>&1 | head -1
           python3 scripts/text/constitution_uk.py
           python3 scripts/text/constitution_en.py
           git diff --exit-code -- app/src/main/assets/
@@ -86,6 +89,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions:
+      contents: read
     # The release job checks the APK it signs against this; another job cannot change a job's output
     outputs:
       apk_sha256: ${{ steps.sum.outputs.sha256 }}
@@ -101,6 +106,10 @@ jobs:
           REF: ${{ github.ref }}
           REPO: ${{ github.repository }}
         run: bash .github/check-version.sh "$EVENT" "$REF" "$REPO"
+
+      # The prebuilt eSpeak NG library and the reading-aloud files: exactly the reviewed ones
+      - name: Check the eSpeak library and voice files
+        run: grep -v '^#' espeak/SHA256SUMS | sha256sum -c --quiet -
 
       - name: Check the Gradle version and checksum
         run: |

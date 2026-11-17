@@ -71,8 +71,9 @@ def paragraphs(pdf):
                 yield para
             para = text
         else:
-            # A word cut at the end of a line ("131-" / "1312") stays together; other lines get a space
-            para = para + ("" if para.endswith("-") and re.match(r"\d", text) else " ") + text
+            # A hyphenated word broken at the end of a line ("self-" / "government") stays together,
+            # hyphen kept: the PDF breaks only at real hyphens. Other lines join with a space.
+            para = para + ("" if para.endswith("-") else " ") + text
     if para:
         yield para
 

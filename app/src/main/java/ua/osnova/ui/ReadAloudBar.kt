@@ -62,7 +62,15 @@ internal fun ReadAloudBar(state: ReadAloud.State, onSettings: () -> Unit) {
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     ) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
-            val notice = when { state.notice == ReadAloud.NOTICE_NO_VOICE -> R.string.read_no_voice; state.notice == ReadAloud.NOTICE_NO_LANGUAGE -> R.string.read_no_language; state.notice == ReadAloud.NOTICE_NOT_DOWNLOADED -> R.string.read_not_downloaded; state.notice == ReadAloud.NOTICE_NOT_DOWNLOADED_NO_PHONE -> R.string.read_not_downloaded_no_phone; state.preparing -> R.string.read_preparing; else -> null }
+            val notice = when (state.notice) {
+                ReadAloud.NOTICE_NO_VOICE -> R.string.read_no_voice
+                ReadAloud.NOTICE_NO_LANGUAGE -> R.string.read_no_language
+                ReadAloud.NOTICE_NO_SOUND -> R.string.read_no_sound
+                ReadAloud.NOTICE_NOT_DOWNLOADED -> R.string.read_not_downloaded
+                ReadAloud.NOTICE_NOT_DOWNLOADED_NO_PHONE -> R.string.read_not_downloaded_no_phone
+                ReadAloud.NOTICE_OWN_FAILED -> R.string.read_own_failed
+                else -> if (state.preparing) R.string.read_preparing else null
+            }
             if (notice != null) Text(
                 stringResource(notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
@@ -107,45 +115,50 @@ internal fun ReadAloudBar(state: ReadAloud.State, onSettings: () -> Unit) {
 /** The voice, the speed and the sleep timer. */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-internal fun ReadAloudSheet(state: ReadAloud.State, chapters: Boolean, onVoice: (String) -> Unit, onSpeed: (Float) -> Unit, onDismiss: () -> Unit) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            Modifier.fillMaxWidth().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Text(stringResource(R.string.read_aloud), style = MaterialTheme.typography.titleLarge)
-            Text(stringResource(R.string.read_voice).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            Column(Modifier.selectableGroup()) {
-                for ((id, title, hint) in listOf(
-                    Triple(ReadAloud.OWN, R.string.read_voice_own, R.string.read_voice_own_hint),
-                    Triple(ReadAloud.PHONE, R.string.read_voice_phone, R.string.read_voice_phone_hint),
-                )) {
-                    Row(
-                        Modifier.fillMaxWidth().heightIn(min = 56.dp).selectable(state.voice == id, role = Role.RadioButton) { onVoice(id) },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = state.voice == id, onClick = null)
-                        Column(Modifier.padding(start = 12.dp)) {
-                            Text(stringResource(title), style = MaterialTheme.typography.bodyLarge)
-                            Text(stringResource(hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+internal fun ReadAloudSheet(state: ReadAloud.State, onVoice: (String) -> Unit, onSpeed: (Float) -> Unit, onDismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss) { ReadAloudSettings(state, onVoice, onSpeed) }
+}
+
+/** The sheet's content, apart from the sheet, so the screen tests can draw it. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun ReadAloudSettings(state: ReadAloud.State, onVoice: (String) -> Unit, onSpeed: (Float) -> Unit) {
+    Column(
+        Modifier.fillMaxWidth().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(stringResource(R.string.read_aloud), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.read_voice).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Column(Modifier.selectableGroup()) {
+            for ((id, title, hint) in listOf(
+                Triple(ReadAloud.OWN, R.string.read_voice_own, R.string.read_voice_own_hint),
+                Triple(ReadAloud.PHONE, R.string.read_voice_phone, R.string.read_voice_phone_hint),
+            )) {
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 56.dp).selectable(state.voice == id, role = Role.RadioButton) { onVoice(id) },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = state.voice == id, onClick = null)
+                    Column(Modifier.padding(start = 12.dp)) {
+                        Text(stringResource(title), style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
-            // The voices, downloaded once (not in the app)
-            if (state.voice != ReadAloud.PHONE) VoiceDownloads()
-            Text(stringResource(R.string.read_speed, speedLabel(state.speed)).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (s in READ_SPEEDS) FilterChip(selected = state.speed == s, onClick = { onSpeed(s) }, label = { Text(speedLabel(s) + "×") }, modifier = Modifier.heightIn(min = 48.dp))
-            }
-            Text(stringResource(R.string.read_sleep).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val on = state.sleepAt
-                FilterChip(selected = on == null, onClick = { ReadAloud.sleep(0) }, label = { Text(stringResource(R.string.read_sleep_off)) }, modifier = Modifier.heightIn(min = 48.dp))
-                for (m in listOf(15L, 30L, 60L)) FilterChip(selected = state.sleepMinutes == m && on != null && on != ReadAloud.SLEEP_CHAPTER, onClick = { ReadAloud.sleep(m) }, label = { Text(stringResource(R.string.read_sleep_minutes, m.toInt())) }, modifier = Modifier.heightIn(min = 48.dp))
-                if (chapters) FilterChip(selected = on == ReadAloud.SLEEP_CHAPTER, onClick = { ReadAloud.sleep(ReadAloud.SLEEP_CHAPTER) }, label = { Text(stringResource(R.string.read_sleep_chapter)) }, modifier = Modifier.heightIn(min = 48.dp))
-            }
-            Spacer(Modifier.size(4.dp))
         }
+        // The voices, downloaded once (not in the app)
+        if (state.voice != ReadAloud.PHONE) VoiceDownloads()
+        Text(stringResource(R.string.read_speed, speedLabel(state.speed)).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            for (s in READ_SPEEDS) FilterChip(selected = state.speed == s, onClick = { onSpeed(s) }, label = { Text(speedLabel(s) + "×") }, modifier = Modifier.heightIn(min = 48.dp))
+        }
+        Text(stringResource(R.string.read_sleep).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val on = state.sleepAt
+            FilterChip(selected = on == null, onClick = { ReadAloud.sleep(0) }, label = { Text(stringResource(R.string.read_sleep_off)) }, modifier = Modifier.heightIn(min = 48.dp))
+            for (m in listOf(15L, 30L, 60L)) FilterChip(selected = state.sleepMinutes == m && on != null && on != ReadAloud.SLEEP_CHAPTER, onClick = { ReadAloud.sleep(m) }, label = { Text(stringResource(R.string.read_sleep_minutes, m.toInt())) }, modifier = Modifier.heightIn(min = 48.dp))
+            FilterChip(selected = on == ReadAloud.SLEEP_CHAPTER, onClick = { ReadAloud.sleep(ReadAloud.SLEEP_CHAPTER) }, label = { Text(stringResource(R.string.read_sleep_chapter)) }, modifier = Modifier.heightIn(min = 48.dp))
+        }
+        Spacer(Modifier.size(4.dp))
     }
 }
