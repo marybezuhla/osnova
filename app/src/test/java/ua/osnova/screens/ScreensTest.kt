@@ -2,13 +2,9 @@ package ua.osnova.screens
 
 import android.app.Application
 import android.content.ComponentName
-import android.graphics.Bitmap
-import android.os.Looper
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Before
@@ -28,7 +24,6 @@ import ua.osnova.ui.SettingsPage
 import ua.osnova.ui.ShareContent
 import androidx.compose.foundation.background
 import ua.osnova.ui.theme.Look
-import ua.osnova.ui.theme.OsnovaTheme
 import ua.osnova.ui.theme.Theme
 import java.io.File
 
@@ -52,23 +47,7 @@ class ScreensTest {
     }
 
     private fun shot(name: String, theme: Theme, manualClock: Boolean = false, content: @Composable () -> Unit) =
-        ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
-            // A text field with a cursor keeps the screen busy for ever: then time is moved on by hand
-            if (manualClock) compose.mainClock.autoAdvance = false
-            scenario.onActivity { it.setContent { OsnovaTheme(theme) { content() } } }
-            repeat(8) {
-                if (manualClock) repeat(30) { compose.mainClock.advanceTimeByFrame() } else compose.waitForIdle()
-                shadowOf(Looper.getMainLooper()).idle()
-            }
-            var bitmap: Bitmap? = null
-            scenario.onActivity { activity ->
-                val view = activity.window.decorView
-                bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).also { view.draw(android.graphics.Canvas(it)) }
-            }
-            val dir = File("build/screens").apply { mkdirs() }
-            File(dir, "$name.png").outputStream().use { bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            Unit
-        }
+        shoot(compose, name, theme, manualClock, content)
 
     private fun home(name: String, theme: Theme, lang: String = "uk", query: String = "", bookmarksTab: Boolean = false) =
         shot(name, theme, manualClock = query.isNotEmpty()) {
