@@ -26,6 +26,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
@@ -72,10 +75,15 @@ fun ReaderScreen(
     }
     val current = c.pages[pager.currentPage]
     val marked = current.key in bookmarks
+    var sharing by rememberSaveable { mutableStateOf(false) }
+    if (sharing) ShareSheet(c, current, lang) { sharing = false }
     Scaffold(
         containerColor = scheme.background,
         topBar = {
             Bar(pageShort(res, current), onBack) {
+                IconButton(onClick = { sharing = true }) {
+                    Icon(painterResource(R.drawable.ic_share), contentDescription = stringResource(R.string.share))
+                }
                 IconButton(onClick = { onToggleBookmark(current.key) }) {
                     Icon(
                         painterResource(if (marked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_add),

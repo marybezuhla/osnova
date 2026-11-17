@@ -25,6 +25,8 @@ import ua.osnova.ui.ChapterScreen
 import ua.osnova.ui.HomeScreen
 import ua.osnova.ui.ReaderScreen
 import ua.osnova.ui.SettingsPage
+import ua.osnova.ui.ShareContent
+import androidx.compose.foundation.background
 import ua.osnova.ui.theme.Look
 import ua.osnova.ui.theme.OsnovaTheme
 import ua.osnova.ui.theme.Theme
@@ -110,6 +112,14 @@ class ScreensTest {
     @Config(qualifiers = "en-w320dp-h3200dp-xhdpi", fontScale = 2.0f)
     @Test fun settingsNarrowLargeFontEnglish() = shot("16-settings-narrow-large-font-en", Theme.NEBO) {
         SettingsPage(Look(), onLook = {}, language = AppLanguage.Choice.EN, onLanguage = {}, onAbout = {}, onBack = {})
+    }
+
+    // "Share a quote", as it opens over the reader
+    @Test fun share() = shot("19-share", Theme.NEBO) {
+        val c = texts.getValue("uk")
+        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.background)) {
+            ShareContent(c, c.article("3")!!, "uk")
+        }
     }
 
     // A tablet held sideways, and an unfolded phone
