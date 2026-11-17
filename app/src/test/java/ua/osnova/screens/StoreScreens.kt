@@ -75,7 +75,7 @@ class StoreScreens {
 
     // 2. The main action: reading an article
     private fun s2() = shot("02_article", Theme.NEBO) {
-        ReaderScreen(c, lang(), "a:21", marks, onToggleBookmark = {}, onLanguage = {}, onBack = {}, onShown = {}, reading = ReadAloud.State())
+        ReaderScreen(c, lang(), "a:24", marks, onToggleBookmark = {}, onLanguage = {}, onBack = {}, onShown = {}, reading = ReadAloud.State())
     }
 
     // 3. What is special: reading aloud offline, the sentence read shaded

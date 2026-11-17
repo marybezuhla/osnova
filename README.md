@@ -1,6 +1,15 @@
+<img src=".github/repo_icon.png" width="96" alt="">
+
 # Основа · Osnova
 
 Конституція України в телефоні: повний текст чинної редакції українською й офіційний переклад англійською, пошук, закладки й місце, де ви зупинилися. Без інтернету, реклами, акаунтів і стеження.
+
+<p>
+<img src="fastlane/metadata/android/uk/images/phoneScreenshots/01_home.png" width="200" alt="Зміст і пошук">
+<img src="fastlane/metadata/android/uk/images/phoneScreenshots/03_read_aloud.png" width="200" alt="Читання вголос">
+<img src="fastlane/metadata/android/uk/images/phoneScreenshots/05_share.png" width="200" alt="Поділитися цитатою">
+<img src="fastlane/metadata/android/uk/images/phoneScreenshots/06_starry_night.png" width="200" alt="Тема Зоряна ніч">
+</p>
 
 - **Слово в слово** з сайту Верховної Ради: текст у застосунку щоразу збирається з закріплених джерел, і CI перевіряє, що в ньому нічого не змінено вручну ([scripts/text](scripts/text)).
 - **Пошук** обома мовами, з різними формами слів; номер статті відкриває її одразу.

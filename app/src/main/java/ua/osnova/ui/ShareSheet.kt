@@ -69,14 +69,9 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
     // Chosen pieces by their position; all of them at first, so a choice is made by taking some away
     var chosen by rememberSaveable(page.key) { mutableStateOf(pieces.indices.toList()) }
     val picked = if (choosing) pieces.filterIndexed { i, _ -> i in chosen } else pieces
-    val quote = picked.takeIf { it.isNotEmpty() }?.let { p ->
-        Quote.text(
-            p.flatMap { piece -> piece.paragraphs.map(paras::get) },
-            res.getString(R.string.quote_open),
-            res.getString(R.string.quote_close),
-            quoteSource(res, page, if (p.size == pieces.size) null else p),
-        )
-    }
+    val source = picked.takeIf { it.isNotEmpty() }?.let { quoteSource(res, page, if (it.size == pieces.size) null else it) }
+    val words = picked.flatMap { piece -> piece.paragraphs.map(paras::get) }
+    val quote = source?.let { Quote.text(words, res.getString(R.string.quote_open), res.getString(R.string.quote_close), it) }
     var copied by remember(quote) { mutableStateOf(false) }
 
     Column(
@@ -111,20 +106,22 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                 }
             }
         }
+        // The quote as it will be sent: a long one is cut short here, its source always shows
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = scheme.surface,
             border = BorderStroke(1.dp, scheme.outlineVariant),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(
-                quote ?: stringResource(R.string.share_none),
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (quote == null) scheme.onSurfaceVariant else scheme.onSurface,
-                maxLines = 12,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(16.dp),
-            )
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (source == null) {
+                    Text(stringResource(R.string.share_none), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                } else {
+                    Text(res.getString(R.string.quote_open) + words.joinToString("\n") + res.getString(R.string.quote_close),
+                        style = MaterialTheme.typography.bodyMedium, color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis)
+                    Text("— $source", style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                }
+            }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(
