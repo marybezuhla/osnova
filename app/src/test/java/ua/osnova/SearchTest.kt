@@ -45,6 +45,10 @@ class SearchTest {
         assertTrue(Search.find(en, "citizens").isNotEmpty())
         assertTrue(Search.find(uk, "").isEmpty())
         assertTrue(Search.find(uk, "zzzqx").isEmpty())
+        // "ст. 24" finds where article 24 is named, not every word starting with "ст"
+        val byNumber = Search.find(uk, "ст. 24")
+        assertTrue(byNumber.isNotEmpty())
+        assertTrue(byNumber.all { h -> h.marks.all { h.excerpt.substring(it) == "24" } })
     }
 
     @Test fun marksAreTheWordsFound() {

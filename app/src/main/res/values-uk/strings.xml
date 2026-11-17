@@ -22,8 +22,8 @@
     <string name="articles_range">Статті %1$s–%2$s</string>
     <string name="chapter_vii_excluded">VII. Прокуратура: розділ виключено у 2016 році</string>
     <string name="notes">Примітки офіційної редакції</string>
-    <string name="previous">Попередня: %1$s</string>
-    <string name="next">Наступна: %1$s</string>
+    <string name="previous">Попередня сторінка: %1$s</string>
+    <string name="next">Наступна сторінка: %1$s</string>
     <string name="text_uk">УКР</string>
     <string name="text_language_default">uk</string>
     <string name="translation_note">Офіційний переклад Верховної Ради України. У разі розбіжностей чинним є текст українською.</string>

@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +75,7 @@ fun ReaderScreen(
     Scaffold(
         containerColor = scheme.background,
         topBar = {
-            Bar(pageTitle(res, current, lang), onBack) {
+            Bar(pageShort(res, current), onBack) {
                 IconButton(onClick = { onToggleBookmark(current.key) }) {
                     Icon(
                         painterResource(if (marked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_add),
@@ -102,16 +103,22 @@ fun ReaderScreen(
             ) {
                 val i = pager.currentPage
                 if (i > 0) {
-                    TextButton(onClick = { scope.launch { pager.animateScrollToPage(i - 1) } }) {
-                        Text(res.getString(R.string.previous, pageShort(res, c.pages[i - 1])))
-                    }
+                    val name = pageShort(res, c.pages[i - 1])
+                    val said = res.getString(R.string.previous, name)
+                    TextButton(
+                        onClick = { scope.launch { pager.animateScrollToPage(i - 1) } },
+                        modifier = Modifier.semantics { contentDescription = said },
+                    ) { Text(res.getString(R.string.previous_short, name)) }
                 } else {
                     Spacer(Modifier.height(48.dp))
                 }
                 if (i < c.pages.lastIndex) {
-                    TextButton(onClick = { scope.launch { pager.animateScrollToPage(i + 1) } }) {
-                        Text(res.getString(R.string.next, pageShort(res, c.pages[i + 1])))
-                    }
+                    val name = pageShort(res, c.pages[i + 1])
+                    val said = res.getString(R.string.next, name)
+                    TextButton(
+                        onClick = { scope.launch { pager.animateScrollToPage(i + 1) } },
+                        modifier = Modifier.semantics { contentDescription = said },
+                    ) { Text(res.getString(R.string.next_short, name)) }
                 }
             }
         }
@@ -136,26 +143,24 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (page is Page.Of) {
+                // The bar on top names the page; above the text, the chapter it belongs to (or, for the
+                // transitional provisions, the chapter's own full name)
+                val chapter = when (page) {
+                    is Page.Of -> page.chapter
+                    is Page.Text -> page.chapter
+                    Page.Preamble -> null
+                }
+                if (chapter != null) {
                     item {
                         Text(
-                            chapterName(res, page.chapter.num, page.chapter.title, lang),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = scheme.onSurfaceVariant,
+                            chapterName(res, chapter.num, chapter.title, lang),
+                            style = if (page is Page.Text) MaterialTheme.typography.titleLarge else MaterialTheme.typography.labelLarge,
+                            fontWeight = if (page is Page.Text) FontWeight.SemiBold else null,
+                            color = if (page is Page.Text) scheme.onBackground else scheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().semantics { heading() },
                         )
                     }
-                }
-                item {
-                    Text(
-                        pageTitle(res, page, lang),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = scheme.onBackground,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().semantics { heading() },
-                    )
                 }
                 items(c.paragraphs(page)) { p ->
                     Text(p, style = MaterialTheme.typography.bodyLarge, color = scheme.onBackground)

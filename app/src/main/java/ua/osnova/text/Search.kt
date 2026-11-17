@@ -40,9 +40,12 @@ object Search {
     /** The article number in a query like "24", "ст. 24", "стаття 131-1" or "article 24", or null. */
     fun articleNumber(query: String): String? = NUMBER.find(normalize(query.trim()))?.groupValues?.get(1)
 
-    /** Paragraphs that have every word of [query], in the order of the text; at most [MAX_HITS]. */
+    /**
+     * Paragraphs that have every word of [query], in the order of the text; at most [MAX_HITS]. For an
+     * article number ("ст. 24") only the number is looked for: "ст" is not a word to find.
+     */
     fun find(c: Constitution, query: String): List<Hit> {
-        val stems = stems(query)
+        val stems = stems(articleNumber(query) ?: query)
         if (stems.isEmpty()) return emptyList()
         val hits = ArrayList<Hit>()
         for ((pi, page) in c.pages.withIndex()) {

@@ -23,8 +23,10 @@
     <string name="articles_range">Articles %1$s to %2$s</string>
     <string name="chapter_vii_excluded">VII. Prosecutor\'s office: chapter excluded in 2016</string>
     <string name="notes">Notes of the official edition</string>
-    <string name="previous">Previous: %1$s</string>
-    <string name="next">Next: %1$s</string>
+    <string name="previous">Previous page: %1$s</string>
+    <string name="next">Next page: %1$s</string>
+    <string name="previous_short" translatable="false">‹ %1$s</string>
+    <string name="next_short" translatable="false">%1$s ›</string>
     <string name="text_uk">UKR</string>
     <string name="text_en" translatable="false">ENG</string>
     <string name="text_language_default">en</string>

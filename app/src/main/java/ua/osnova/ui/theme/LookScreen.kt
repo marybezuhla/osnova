@@ -152,12 +152,18 @@ internal fun <T> Segments(options: List<Pair<T, Int>>, chosen: T, onChoose: (T) 
                     .padding(horizontal = 2.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    stringResource(label),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                // One line: with the largest font on a narrow phone the word gets smaller instead of
+                // breaking in the middle ("Украї-нська")
+                val style = MaterialTheme.typography.bodyMedium.merge(
                     color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
+                )
+                BasicText(
+                    stringResource(label),
+                    style = style,
+                    maxLines = 1,
+                    autoSize = TextAutoSize.StepBased(minFontSize = 8.sp, maxFontSize = style.fontSize, stepSize = 0.5.sp),
                 )
             }
         }
