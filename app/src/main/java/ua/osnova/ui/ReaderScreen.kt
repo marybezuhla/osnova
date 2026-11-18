@@ -21,6 +21,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -233,6 +234,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
         if (spokenParagraph != null) list.animateScrollToItem(spokenParagraph + before)
     }
     val mark = SpanStyle(background = scheme.secondaryContainer)
+    // Even edges, as in a printed book; with a large font a line has too few words for that, and gaps would open
+    val align = if (LocalDensity.current.fontScale < 1.3f) TextAlign.Justify else TextAlign.Start
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         // The text can be selected, copied, and shared as a quote with where it is from
         val view = LocalView.current
@@ -270,8 +273,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 items(paras.size) { j ->
                     val p = paras[j]
                     val on = spokenIn(j)
-                    // Even edges, as in a printed book: long words break with a hyphen, by the text's language
-                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto, textAlign = TextAlign.Justify), color = scheme.onBackground)
+                    // Long words break with a hyphen, by the text's language
+                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto, textAlign = align), color = scheme.onBackground)
                 }
                 if (isLast) {
                     item {
