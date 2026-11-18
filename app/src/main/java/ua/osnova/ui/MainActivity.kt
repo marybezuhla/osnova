@@ -204,8 +204,8 @@ class MainActivity : ComponentActivity() {
         const val ABOUT = "about"
         // Page keys and chapter numbers never contain it
         const val SEP = "|"
-        // A little longer than the fade between screens
-        const val STEP_MS = 300L
+        // A little longer than the fade between screens (120 ms): a quick second "back" still works
+        const val STEP_MS = 150L
     }
 }
 

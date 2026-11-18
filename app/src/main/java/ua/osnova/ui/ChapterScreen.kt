@@ -41,7 +41,7 @@ fun ChapterScreen(c: Constitution, lang: String, num: String, onBack: () -> Unit
             ) {
                 item {
                     Text(
-                        chapterName(res, chapter.num, chapter.title, lang),
+                        inLanguage(chapterName(res, chapter.num, chapter.title, lang), lang),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = scheme.onBackground,
@@ -52,9 +52,9 @@ fun ChapterScreen(c: Constitution, lang: String, num: String, onBack: () -> Unit
                 items(chapter.articles, key = { it.num }) { article ->
                     Tile({ onOpen(Page.Of(article, chapter).key) }) {
                         Column {
-                            Text(res.getString(R.string.article, article.num), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                            Text(inLanguage(res.getString(R.string.article, article.num), lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                             Text(
-                                article.parts.first(),
+                                inLanguage(article.parts.first(), lang),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = scheme.onSurfaceVariant,
                                 maxLines = 3,

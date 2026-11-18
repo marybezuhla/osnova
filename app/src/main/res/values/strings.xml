@@ -58,6 +58,7 @@
     <string name="read_no_sound">Could not play the sound, so reading stopped. Try again.</string>
     <string name="read_own_failed">Osnova\'s voice could not start (most often for lack of free memory), so the phone\'s voice reads for now.</string>
     <string name="read_voice_deleted">Deleted</string>
+    <string name="read_voice_not_restored">Could not bring the voice back: download it again.</string>
     <string name="erase">Erase all data…</string>
     <string name="erase_question">Erase all data?</string>
     <string name="erase_text">Bookmarks, the place you stopped, the settings and the downloaded voices will be erased from this phone. The Constitution\'s text stays. Osnova will close.</string>

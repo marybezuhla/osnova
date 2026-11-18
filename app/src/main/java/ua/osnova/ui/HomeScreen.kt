@@ -93,7 +93,7 @@ fun HomeScreen(
                 } else {
                     val lastPage = last?.let(c::indexOf)?.let { c.pages[it] }
                     if (lastPage != null) {
-                        item { ContinueCard(pageTitle(res, lastPage, lang)) { onOpen(lastPage.key) } }
+                        item { ContinueCard(inLanguage(pageTitle(res, lastPage, lang), lang)) { onOpen(lastPage.key) } }
                     }
                     item {
                         Segments(
@@ -167,7 +167,7 @@ internal fun Tile(onClick: () -> Unit, modifier: Modifier = Modifier, content: @
 }
 
 @Composable
-private fun ContinueCard(title: String, onClick: () -> Unit) {
+private fun ContinueCard(title: androidx.compose.ui.text.AnnotatedString, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Surface(shape = RoundedCornerShape(16.dp), color = scheme.primary, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.clickable(role = Role.Button, onClick = onClick).padding(horizontal = 16.dp, vertical = 12.dp)) {
@@ -179,13 +179,13 @@ private fun ContinueCard(title: String, onClick: () -> Unit) {
 
 private fun LazyListScope.contents(c: Constitution, res: Resources, lang: String, onOpen: (String) -> Unit, onChapter: (String) -> Unit) {
     item {
-        Tile({ onOpen(Page.Preamble.key) }) { Text(res.getString(R.string.preamble), style = MaterialTheme.typography.bodyLarge) }
+        Tile({ onOpen(Page.Preamble.key) }) { Text(inLanguage(res.getString(R.string.preamble), lang), style = MaterialTheme.typography.bodyLarge) }
     }
     for (chapter in c.chapters) {
         item(key = chapter.num) {
             Tile({ if (chapter.articles.isEmpty()) onOpen(Page.Text(chapter).key) else onChapter(chapter.num) }) {
                 Column {
-                    Text(chapterName(res, chapter.num, chapter.title, lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(inLanguage(chapterName(res, chapter.num, chapter.title, lang), lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                     if (chapter.articles.isNotEmpty()) {
                         Text(
                             res.getString(R.string.articles_range, chapter.articles.first().num, chapter.articles.last().num),
@@ -236,9 +236,9 @@ private fun LazyListScope.bookmarkList(
         Tile({ onOpen(page.key) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(pageTitle(res, page, lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(inLanguage(pageTitle(res, page, lang), lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                     Text(
-                        c.paragraphs(page).firstOrNull().orEmpty(),
+                        inLanguage(c.paragraphs(page).firstOrNull().orEmpty(), lang),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
@@ -272,7 +272,9 @@ private fun LazyListScope.results(
             Tile({ onOpen(jump.key) }) {
                 Column {
                     Text(stringResource(R.string.search_go_to), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    Text(pageTitle(res, jump, lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    // Said by TalkBack as soon as a number finds its article
+                    Text(inLanguage(pageTitle(res, jump, lang), lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 }
             }
         }
@@ -280,7 +282,7 @@ private fun LazyListScope.results(
     // How many were found (or that none were), said by TalkBack as the query changes; nothing to say when
     // the article asked for by its number is all there is
     if (hits.isNotEmpty() || jump == null) item {
-        val count = if (hits.size >= Search.MAX_HITS) "${Search.MAX_HITS}+" else hits.size.toString()
+        val count = if (hits.size > Search.MAX_HITS) "${Search.MAX_HITS}+" else hits.size.toString()
         Text(
             if (hits.isEmpty()) stringResource(R.string.search_none) else stringResource(R.string.search_found, count),
             style = MaterialTheme.typography.bodyMedium,
@@ -290,12 +292,12 @@ private fun LazyListScope.results(
                 .semantics { liveRegion = LiveRegionMode.Polite },
         )
     }
-    items(hits) { hit ->
+    items(hits.take(Search.MAX_HITS)) { hit ->
         val page = c.pages[hit.page]
         val mark = SpanStyle(background = MaterialTheme.colorScheme.secondaryContainer, fontWeight = FontWeight.SemiBold)
         Tile({ onOpen(page.key) }) {
             Column {
-                Text(pageTitle(res, page, lang), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(inLanguage(pageTitle(res, page, lang), lang), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text(inLanguage(hit.excerpt, lang, hit.marks, mark), style = MaterialTheme.typography.bodyMedium)
             }
         }

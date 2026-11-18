@@ -47,7 +47,7 @@ object VoiceFiles {
 
     /** While a file is being copied in: 0..1; and how the last copy ended. */
     data class Status(val progress: Float? = null, val error: Error? = null, val done: Int = 0)
-    enum class Error { WRONG_FILE, NO_SPACE, FAILED }
+    enum class Error { WRONG_FILE, NO_SPACE, FAILED, NOT_RESTORED }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val statuses = Voice.entries.associateWith { MutableStateFlow(Status()) }
@@ -142,7 +142,7 @@ object VoiceFiles {
 
     fun restore(context: Context, v: Voice) {
         val back = File(dir(context), v.file + DELETED).renameTo(File(dir(context), v.file))
-        statuses.getValue(v).value = Status(error = if (back) null else Error.FAILED, done = statuses.getValue(v).value.done + 1)
+        statuses.getValue(v).value = Status(error = if (back) null else Error.NOT_RESTORED, done = statuses.getValue(v).value.done + 1)
     }
 
     private fun changed(v: Voice) {

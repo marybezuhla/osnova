@@ -99,7 +99,7 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                 ) {
                     Checkbox(checked = on, onCheckedChange = null, modifier = Modifier.padding(top = 2.dp, end = 12.dp))
                     Text(
-                        paras[piece.paragraphs.first],
+                        inLanguage(paras[piece.paragraphs.first], lang),
                         style = MaterialTheme.typography.bodyMedium,
                         color = scheme.onBackground,
                         maxLines = 3,

@@ -53,6 +53,7 @@
     <string name="read_no_sound">Не вдалося відтворити звук, тож читання зупинено. Спробуйте ще раз.</string>
     <string name="read_own_failed">Голос Основи не вдалося запустити (найчастіше через брак вільної памʼяті), тож поки читає голос телефона.</string>
     <string name="read_voice_deleted">Видалено</string>
+    <string name="read_voice_not_restored">Не вдалося повернути голос: завантажте його знову.</string>
     <string name="erase">Стерти всі дані…</string>
     <string name="erase_question">Стерти всі дані?</string>
     <string name="erase_text">Закладки, місце читання, налаштування й завантажені голоси зникнуть з цього телефона. Текст Конституції лишиться. Основа закриється.</string>

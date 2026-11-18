@@ -45,7 +45,7 @@ object Search {
     fun articleNumber(query: String): String? = NUMBER.find(normalize(query.trim()))?.groupValues?.get(1)
 
     /**
-     * Paragraphs that have every word of [query], in the order of the text; at most [MAX_HITS]. For an
+     * Paragraphs that have every word of [query], in the order of the text; at most [MAX_HITS] + 1. For an
      * article number ("ст. 24") only the number is looked for: "ст" is not a word to find.
      */
     fun find(c: Constitution, query: String): List<Hit> {
@@ -56,7 +56,8 @@ object Search {
             for ((i, text) in c.paragraphs(page).withIndex()) {
                 val marks = match(text, stems) ?: continue
                 hits += excerpt(pi, i, text, marks)
-                if (hits.size >= MAX_HITS) return hits
+                // One more than shown, so "200+" is said only when there are more
+                if (hits.size > MAX_HITS) return hits
             }
         }
         return hits
