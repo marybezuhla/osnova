@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -89,7 +90,7 @@ fun HomeScreen(
             ) {
                 item { SearchField(query, onQuery) }
                 if (query.isNotBlank()) {
-                    results(c, res, lang, query, hits, onOpen)
+                    results(c, res, lang, query, hits, onOpen, onChapter)
                 } else {
                     val lastPage = last?.let(c::indexOf)?.let { c.pages[it] }
                     if (lastPage != null) {
@@ -121,11 +122,13 @@ fun HomeScreen(
 @Composable
 private fun SearchField(query: String, onQuery: (String) -> Unit) {
     val scheme = MaterialTheme.colorScheme
+    val hint = stringResource(R.string.search_hint)
     OutlinedTextField(
         value = query,
         onValueChange = onQuery,
-        modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text(stringResource(R.string.search_hint)) },
+        // Named for TalkBack also when something is typed in it
+        modifier = Modifier.fillMaxWidth().semantics { contentDescription = hint },
+        placeholder = { Text(hint) },
         leadingIcon = { Icon(painterResource(R.drawable.ic_search), contentDescription = null) },
         trailingIcon = {
             if (query.isNotEmpty()) {
@@ -264,38 +267,52 @@ private fun LazyListScope.results(
     query: String,
     hits: List<Search.Hit>,
     onOpen: (String) -> Unit,
+    onChapter: (String) -> Unit,
 ) {
-    // A number on its own is an article to go to, shown first
+    // A number on its own is an article to go to, "розділ XV" or a chapter's title a chapter: shown first
     val jump = Search.articleNumber(query)?.let(c::article)
-    if (jump != null) {
-        item {
-            Tile({ onOpen(jump.key) }) {
+    val chapter = if (jump == null) Search.chapter(c, query) else null
+    val name = jump?.let { pageTitle(res, it, lang) } ?: chapter?.let { chapterName(res, it.num, it.title, lang) }
+    if (name != null) {
+        item(key = "go") {
+            Tile({
+                when {
+                    jump != null -> onOpen(jump.key)
+                    chapter!!.articles.isEmpty() -> onOpen(Page.Text(chapter).key)
+                    else -> onChapter(chapter.num)
+                }
+            }) {
                 Column {
                     Text(stringResource(R.string.search_go_to), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    // Said by TalkBack as soon as a number finds its article
-                    Text(inLanguage(pageTitle(res, jump, lang), lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                    Text(inLanguage(name, lang), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
     }
-    // How many were found (or that none were), said by TalkBack as the query changes; nothing to say when
-    // the article asked for by its number is all there is
-    if (hits.isNotEmpty() || jump == null) item {
+    // How many were found, that none were, or where to go: one lasting line, so TalkBack hears each change
+    // as the query is typed. Nothing to show when the article or chapter asked for is all there is.
+    item(key = "status") {
         val count = if (hits.size > Search.MAX_HITS) "${Search.MAX_HITS}+" else hits.size.toString()
+        val shown = when {
+            hits.isNotEmpty() -> stringResource(R.string.search_found, count)
+            name == null -> stringResource(R.string.search_none)
+            else -> ""
+        }
+        val said = shown.ifEmpty { stringResource(R.string.search_go_to) + ": " + name }
         Text(
-            if (hits.isEmpty()) stringResource(R.string.search_none) else stringResource(R.string.search_found, count),
+            shown,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(vertical = if (hits.isEmpty()) 24.dp else 0.dp)
-                .semantics { liveRegion = LiveRegionMode.Polite },
+            modifier = Modifier.fillMaxWidth().padding(vertical = if (hits.isEmpty() && name == null) 24.dp else 0.dp)
+                .semantics { liveRegion = LiveRegionMode.Polite; contentDescription = said },
         )
     }
     items(hits.take(Search.MAX_HITS)) { hit ->
         val page = c.pages[hit.page]
         val mark = SpanStyle(background = MaterialTheme.colorScheme.secondaryContainer, fontWeight = FontWeight.SemiBold)
-        Tile({ onOpen(page.key) }) {
+        // Opens at the paragraph found
+        Tile({ onOpen(page.key + AT + hit.paragraph) }) {
             Column {
                 Text(inLanguage(pageTitle(res, page, lang), lang), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text(inLanguage(hit.excerpt, lang, hit.marks, mark), style = MaterialTheme.typography.bodyMedium)

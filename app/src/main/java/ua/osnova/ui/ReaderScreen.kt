@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +52,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ua.osnova.R
@@ -83,10 +85,14 @@ fun ReaderScreen(
     val scheme = MaterialTheme.colorScheme
     val res = textResources(lang)
     val context = LocalContext.current
-    val pager = rememberPagerState(initialPage = c.indexOf(start) ?: 0) { c.pages.size }
+    // "a:24@2": opened from a search, at the paragraph found
+    val startKey = start.substringBefore(AT)
+    val startIndex = c.indexOf(startKey)
+    val focus = start.substringAfter(AT, "").toIntOrNull()
+    val pager = rememberPagerState(initialPage = startIndex ?: 0) { c.pages.size }
     val scope = rememberCoroutineScope()
     // Opened again at another page (a tap during the fade back): go there
-    LaunchedEffect(start) { c.indexOf(start)?.let { if (it != pager.currentPage) pager.scrollToPage(it) } }
+    LaunchedEffect(start) { startIndex?.let { if (it != pager.currentPage) pager.scrollToPage(it) } }
     // The page settled on is the place to come back to
     val shown by rememberUpdatedState(onShown)
     LaunchedEffect(pager, c) {
@@ -131,7 +137,8 @@ fun ReaderScreen(
                 IconButton(onClick = { sharing = current.key }) {
                     Icon(painterResource(R.drawable.ic_share), contentDescription = stringResource(R.string.share))
                 }
-                IconButton(onClick = { onToggleBookmark(current.key) }) {
+                // A toggle: TalkBack says whether the page is in the bookmarks
+                IconToggleButton(checked = marked, onCheckedChange = { onToggleBookmark(current.key) }) {
                     Icon(
                         painterResource(if (marked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_add),
                         contentDescription = stringResource(if (marked) R.string.bookmark_remove else R.string.bookmark_add),
@@ -151,7 +158,7 @@ fun ReaderScreen(
             }
             HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth(), key = { c.pages[it].key }) { i ->
                 val spoken = if (readingHere && reading.unit == i) doc.headLength(i).let { h -> (reading.start - h)..<(reading.end - h) } else null
-                PageText(c, res, lang, c.pages[i], isLast = i == c.pages.lastIndex, spoken = spoken)
+                PageText(c, res, lang, c.pages[i], isLast = i == c.pages.lastIndex, spoken = spoken, focus = focus.takeIf { i == startIndex })
             }
             if (readingHere) {
                 ReadAloudBar(reading, onSettings = { readSettings = true })
@@ -182,7 +189,9 @@ private fun PageButtons(res: Resources, c: Constitution, i: Int, go: (Int) -> Un
                     res.getString(label, name),
                     style = style,
                     maxLines = 1,
-                    autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = style.fontSize, stepSize = 0.5.sp),
+                    // Not much smaller than the text it is under: with the largest font it still reads
+                    autoSize = TextAutoSize.StepBased(minFontSize = style.fontSize * 0.8f, maxFontSize = style.fontSize, stepSize = 0.5.sp),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -197,7 +206,7 @@ private fun pageShort(res: Resources, page: Page): String = when (page) {
 }
 
 @Composable
-private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, isLast: Boolean, spoken: IntRange?) {
+private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, isLast: Boolean, spoken: IntRange?, focus: Int? = null) {
     val scheme = MaterialTheme.colorScheme
     val paras = c.paragraphs(page)
     // Where each paragraph starts in the page's text as read aloud (paragraphs joined by line breaks)
@@ -209,12 +218,14 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
         val b = (r.last + 1 - starts[j]).coerceIn(0, paras[j].length)
         return if (a < b) a..<b else null
     }
-    val list = rememberLazyListState()
+    // (the items before the paragraphs: the heading, and an article's chapter)
+    val before = if (page is Page.Of) 2 else 1
+    // Opened at a paragraph found by a search: it is at the top, just under the page's name
+    val list = rememberLazyListState(initialFirstVisibleItemIndex = focus?.takeIf { it in paras.indices && it > 0 }?.let { it + before - 1 } ?: 0)
     val spokenParagraph = paras.indices.firstOrNull { spokenIn(it) != null }
     // The sentence read aloud stays in sight
     LaunchedEffect(spokenParagraph) {
-        // (the items before the paragraphs: the heading, and an article's chapter)
-        if (spokenParagraph != null) list.animateScrollToItem(spokenParagraph + if (page is Page.Of) 2 else 1)
+        if (spokenParagraph != null) list.animateScrollToItem(spokenParagraph + before)
     }
     val mark = SpanStyle(background = scheme.secondaryContainer)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {

@@ -5,15 +5,15 @@
     <string name="back">Back</string>
     <string name="settings">Settings</string>
     <string name="search_hint">Search the Constitution</string>
-    <string name="search_clear">Clear the search</string>
+    <string name="search_clear">Clear search</string>
     <string name="search_none">Nothing found. Try a shorter word or another form of it.</string>
     <string name="search_go_to">Go to</string>
     <string name="continue_reading">Continue reading</string>
     <string name="tab_contents">Contents</string>
     <string name="tab_bookmarks">Bookmarks</string>
     <string name="bookmarks_empty">No bookmarks yet. Tap the bookmark at the top of an article to keep it here.</string>
-    <string name="bookmark_add">Add a bookmark</string>
-    <string name="bookmark_remove">Remove the bookmark</string>
+    <string name="bookmark_add">Add bookmark</string>
+    <string name="bookmark_remove">Remove bookmark</string>
     <string name="bookmark_removed">Bookmark removed: %1$s</string>
     <string name="undo">Undo</string>
     <string name="preamble">Preamble</string>
@@ -22,7 +22,7 @@
     <string name="article">Article %1$s</string>
     <string name="articles_range">Articles %1$s to %2$s</string>
     <string name="chapter_vii_excluded">VII. Prosecutor\'s Office: chapter repealed in 2016</string>
-    <string name="notes">Notes of the official edition</string>
+    <string name="notes">Notes to the official text</string>
     <string name="previous">Previous page: %1$s</string>
     <string name="next">Next page: %1$s</string>
     <string name="previous_short" translatable="false">‹ %1$s</string>
@@ -32,31 +32,28 @@
     <string name="text_language_default">en</string>
     <string name="translation_note">Official translation published by the Verkhovna Rada of Ukraine. In case of any difference, the Ukrainian text applies.</string>
     <string name="share">Share a quote</string>
-    <string name="share_all">All of it</string>
-    <string name="share_choose">Choose parts</string>
+    <string name="share_all">Whole</string>
+    <string name="share_choose">Select parts</string>
     <string name="share_none">Choose at least one part.</string>
+    <string name="share_part">Paragraph %1$s</string>
+    <string name="share_paragraph">Paragraph %1$s</string>
+    <string name="share_point">Clause %1$s</string>
+    <string name="share_sent_whole">The whole quote is sent, not only what fits here.</string>
+    <string name="bookmark_added">Bookmarked: %1$s</string>
+    <string name="texts_open_en">Official English translation</string>
     <string name="share_copy">Copy</string>
     <string name="share_copied">Copied</string>
     <string name="share_send">Share</string>
     <string name="quote_open">“</string>
     <string name="quote_close">”</string>
-    <string name="quote_constitution">Constitution of Ukraine (official translation)</string>
-    <string name="quote_article">Article %1$s</string>
-    <string name="quote_chapter">Chapter %1$s</string>
-    <string name="quote_preamble">Preamble</string>
-    <string name="quote_part">paragraph %1$s</string>
-    <string name="quote_parts">paragraphs %1$s</string>
-    <string name="quote_point">clause %1$s</string>
-    <string name="quote_points">clauses %1$s</string>
-    <string name="quote_paragraph">paragraph %1$s</string>
-    <string name="quote_paragraphs">paragraphs %1$s</string>
+    <string name="quote_constitution">Constitution of Ukraine</string>
     <string name="loading">Opening the Constitution…</string>
     <string name="app_language">Language</string>
-    <string name="lang_auto">As on the phone</string>
-    <string name="search_found">Paragraphs found: %1$s</string>
+    <string name="lang_auto">Same as the phone</string>
+    <string name="search_found">%1$s paragraphs found</string>
     <string name="label_for" translatable="false">%1$s: %2$s</string>
     <string name="read_no_sound">Could not play the sound, so reading stopped. Try again.</string>
-    <string name="read_own_failed">Osnova\'s voice could not start (most often for lack of free memory), so the phone\'s voice reads for now.</string>
+    <string name="read_own_failed">Osnova\'s voice could not start (most often because memory is low), so the phone\'s voice reads for now.</string>
     <string name="read_voice_deleted">Deleted</string>
     <string name="read_voice_not_restored">Could not bring the voice back: download it again.</string>
     <string name="erase">Erase all data…</string>
@@ -65,12 +62,12 @@
     <string name="erase_confirm">Erase</string>
     <string name="lang_uk" translatable="false">Українська</string>
     <string name="lang_en" translatable="false">English</string>
-    <string name="look_mode">Light or dark</string>
+    <string name="look_mode">Appearance</string>
     <string name="mode_auto">Auto</string>
     <string name="mode_light">Light</string>
     <string name="mode_dark">Dark</string>
-    <string name="day_theme">Theme by day</string>
-    <string name="night_theme">Theme by night</string>
+    <string name="day_theme">Day theme</string>
+    <string name="night_theme">Night theme</string>
     <string name="theme_linen">Linen</string>
     <string name="theme_visk">Beeswax</string>
     <string name="theme_nebo">Sky</string>

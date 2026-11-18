@@ -95,3 +95,6 @@ fun Bar(title: String, onBack: (() -> Unit)?, actions: @Composable RowScope.() -
         Ornament(Modifier.padding(horizontal = 16.dp, vertical = 2.dp))
     }
 }
+
+/** Between a page's key and a paragraph to open it at, in a step of the path: "read:a:24@2". */
+const val AT = "@"

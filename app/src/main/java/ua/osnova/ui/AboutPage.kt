@@ -33,6 +33,8 @@ private const val SOURCE_URL = "https://github.com/marybezuhla/osnova"
 private const val LICENSE_URL = "https://github.com/marybezuhla/osnova/blob/main/LICENSE"
 /** The official text on the Verkhovna Rada's site. */
 private const val TEXT_URL = "https://zakon.rada.gov.ua/laws/show/254к/96-вр"
+/** Its official English translation, the PDF the English text is from. */
+private const val TEXT_EN_URL = "https://zakonst.rada.gov.ua/docs/en/constitution.pdf"
 
 /**
  * "About Osnova": the author's letter and the ways to support Ukraine (as in her other apps), where the
@@ -56,6 +58,7 @@ fun AboutPage(onBack: () -> Unit) {
                 Heading(stringResource(R.string.texts_title))
                 Body(stringResource(R.string.texts_body))
                 TextButton(onClick = { open(TEXT_URL) }) { Text(stringResource(R.string.texts_open)) }
+                TextButton(onClick = { open(TEXT_EN_URL) }) { Text(stringResource(R.string.texts_open_en)) }
 
                 Spacer(Modifier.height(16.dp))
                 Heading(stringResource(R.string.about_title))

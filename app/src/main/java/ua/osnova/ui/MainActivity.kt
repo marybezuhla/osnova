@@ -65,6 +65,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // The list of recent apps shows no picture of what was read (Android 13 and newer)
+        if (android.os.Build.VERSION.SDK_INT >= 33) setRecentsScreenshotEnabled(false)
         look.value = LookStore.load(this)
         places = Places(this)
         bookmarks.value = places.bookmarks()
@@ -141,7 +143,17 @@ class MainActivity : ComponentActivity() {
             }
         }
         fun toggleBookmark(key: String) {
-            if (key in bookmarks.value) removeBookmark(key) else setBookmarks(listOf(key) + bookmarks.value)
+            if (key in bookmarks.value) {
+                removeBookmark(key)
+                return
+            }
+            setBookmarks(listOf(key) + bookmarks.value)
+            // Said in words too: a colour change alone is easy to miss
+            val page = c.indexOf(key)?.let { c.pages[it] } ?: return
+            scope.launch {
+                snackbar.currentSnackbarData?.dismiss()
+                snackbar.showSnackbar(getString(R.string.bookmark_added, pageTitle(res, page, lang)), withDismissAction = true)
+            }
         }
 
         var query by rememberSaveable { mutableStateOf("") }

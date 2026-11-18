@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
@@ -127,8 +128,9 @@ internal fun ReadAloudSettings(state: ReadAloud.State, onVoice: (String) -> Unit
         Modifier.fillMaxWidth().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text(stringResource(R.string.read_aloud), style = MaterialTheme.typography.titleLarge)
-        Text(stringResource(R.string.read_voice).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.read_aloud), style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
+        Text(stringResource(R.string.read_voice).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.semantics { heading() })
         Column(Modifier.selectableGroup()) {
             for ((id, title, hint) in listOf(
                 Triple(ReadAloud.OWN, R.string.read_voice_own, R.string.read_voice_own_hint),
@@ -148,11 +150,18 @@ internal fun ReadAloudSettings(state: ReadAloud.State, onVoice: (String) -> Unit
         }
         // The voices, downloaded once (not in the app)
         if (state.voice != ReadAloud.PHONE) VoiceDownloads()
-        Text(stringResource(R.string.read_speed, speedLabel(state.speed)).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.read_speed, speedLabel(state.speed)).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.semantics { heading() })
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            for (s in READ_SPEEDS) FilterChip(selected = state.speed == s, onClick = { onSpeed(s) }, label = { Text(speedLabel(s) + "×") }, modifier = Modifier.heightIn(min = 48.dp))
+            for (s in READ_SPEEDS) {
+                // "Швидкість 1,5", not "1,5 множення"
+                val says = stringResource(R.string.read_speed, speedLabel(s))
+                FilterChip(selected = state.speed == s, onClick = { onSpeed(s) }, label = { Text(speedLabel(s) + "×") },
+                    modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = says })
+            }
         }
-        Text(stringResource(R.string.read_sleep).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.read_sleep).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.semantics { heading() })
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val on = state.sleepAt
             FilterChip(selected = on == null, onClick = { ReadAloud.sleep(0) }, label = { Text(stringResource(R.string.read_sleep_off)) }, modifier = Modifier.heightIn(min = 48.dp))

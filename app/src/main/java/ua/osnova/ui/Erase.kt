@@ -59,6 +59,11 @@ private fun erase(context: Context) {
     val app = context.applicationContext
     // Nothing reads or holds a voice's file open while it goes
     ReadAloud.stop()
+    // A quote copied from Osnova does not stay in the clipboard (anything else copied there is not Osnova's to erase)
+    try {
+        val clip = app.getSystemService(android.content.ClipboardManager::class.java)
+        if (clip?.primaryClipDescription?.label == app.getString(ua.osnova.R.string.quote_constitution)) clip.clearPrimaryClip()
+    } catch (_: Exception) { /* the rest still goes */ }
     // The app's language is kept by Android itself (13 and newer): back to "as on the phone"
     if (android.os.Build.VERSION.SDK_INT >= 33) {
         try { app.getSystemService(android.app.LocaleManager::class.java)?.applicationLocales = android.os.LocaleList.getEmptyLocaleList() } catch (_: Exception) { /* the rest still goes */ }
@@ -72,8 +77,9 @@ private fun erase(context: Context) {
     }
     if (done) return
     val data = File(app.applicationInfo.dataDir)
-    listOf(app.filesDir, app.noBackupFilesDir, app.cacheDir, app.codeCacheDir, File(data, "shared_prefs"))
-        .forEach { dir -> try { dir.deleteRecursively() } catch (_: Exception) { /* the next folder still goes */ } }
+    // Everything in the app's own folder (what Android keeps there itself, like "lib", is not the app's to delete)
+    (data.listFiles().orEmpty().toList() + listOf(app.cacheDir, app.codeCacheDir, app.noBackupFilesDir))
+        .forEach { f -> try { f.deleteRecursively() } catch (_: Exception) { /* the next one still goes */ } }
     // Closed, so nothing still in memory writes anything back
     android.os.Process.killProcess(android.os.Process.myPid())
 }

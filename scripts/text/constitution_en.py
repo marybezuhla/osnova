@@ -98,6 +98,8 @@ def main():
         i += 1
         kind, _, text = p.partition("\x00") if "\x00" in p else ("", "", p)
         text = re.sub(r"\s+", " ", text).strip()
+        # The PDF runs "see" and "Decision" together in some notes
+        text = re.sub(r"\bsee(?=Decision)", "see ", text)
         if not text:
             continue
         if text == "***":

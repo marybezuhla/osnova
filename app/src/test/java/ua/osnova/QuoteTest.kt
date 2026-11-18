@@ -51,4 +51,27 @@ class QuoteTest {
     @Test fun quoteText() {
         assertEquals("«a\nb»\n— Конституція України, стаття 3", Quote.text(listOf("a", "b"), "«", "»", "Конституція України, стаття 3"))
     }
+
+    @Test fun citedAsLawyersCite() {
+        val a43 = uk.article("43")!!
+        val p43 = Quote.pieces(uk, a43)
+        assertEquals("Стаття 43 Конституції України", Quote.source(a43, null, "uk"))
+        assertEquals("Частина друга статті 43 Конституції України", Quote.source(a43, listOf(p43[1]), "uk"))
+        assertEquals("Частини друга та п'ята статті 43 Конституції України", Quote.source(a43, listOf(p43[1], p43[4]), "uk"))
+        assertEquals("Article 43(2) and (5) of the Constitution of Ukraine (official translation)",
+            Quote.source(en.article("43")!!, listOf(p43[1], p43[4]), "en"))
+        val pre = Quote.pieces(uk, Page.Preamble)
+        assertEquals("Абзац третій преамбули Конституції України", Quote.source(Page.Preamble, listOf(pre[2]), "uk"))
+        val xv = uk.pages.last()
+        val point = Quote.pieces(uk, xv).first { it.number == "16-1" }
+        assertEquals("Пункт 16-1 розділу XV «Перехідні положення» Конституції України", Quote.source(xv, listOf(point), "uk"))
+    }
+
+    @Test fun leftOutPartsAreMarked() {
+        val paras = uk.paragraphs(uk.article("43")!!)
+        val p = Quote.pieces(uk, uk.article("43")!!)
+        val words = Quote.words(paras, listOf(p[1], p[4]))
+        assertEquals(listOf(paras[1], Quote.GAP, paras[4]), words)
+        assertEquals(paras, Quote.words(paras, p))
+    }
 }

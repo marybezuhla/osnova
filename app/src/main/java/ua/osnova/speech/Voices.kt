@@ -320,8 +320,9 @@ class PhoneVoice private constructor(private val tts: TextToSpeech, private val 
                     c.invokeOnCancellation { waiting.remove(id); try { tts.stop() } catch (_: Exception) {} }
                 }
             } ?: run { waiting.remove(id); try { tts.stop() } catch (_: Exception) {}; false }
-            // A sane size only (an hour of sound is more than any sentence)
-            return if (ok && file.length() in 45..200_000_000L) Wav.read(file) else null
+            // A sane size only (ten minutes of sound is more than any sentence), and too little memory for it is
+            // no sound rather than a crash
+            return if (ok && file.length() in 45..50_000_000L) try { Wav.read(file) } catch (_: OutOfMemoryError) { null } else null
         } finally { file.delete() }
     }
 

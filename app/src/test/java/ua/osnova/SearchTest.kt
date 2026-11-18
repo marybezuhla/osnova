@@ -71,4 +71,37 @@ class SearchTest {
             }
         }
     }
+
+    @Test fun typedAsPeopleType() {
+        // No apostrophe, a quotation mark for it, Latin "i" in a Ukrainian word, "ё"
+        val withIt = Search.find(uk, "обов'язки").size
+        assertTrue(withIt > 0)
+        assertEquals(withIt, Search.find(uk, "обовязки").size)
+        assertEquals(withIt, Search.find(uk, "обов\"язки").size)
+        assertEquals(Search.find(uk, "місцеве самоврядування").size, Search.find(uk, "мiсцеве самоврядування").size)
+        assertTrue(Search.find(uk, "сiм'я").isNotEmpty())
+        // Any form of "стаття", the number on either side, a part after it
+        for (q in listOf("статтю 46", "46 стаття", "ст.106", "cт 106", "№ 106", "ст. 106 ч. 2", "стаття 106 п. 15", "106.")) {
+            assertEquals(q, if (q.contains("46")) "46" else "106", Search.articleNumber(q))
+        }
+        assertNull(Search.articleNumber("2024 рік"))
+    }
+
+    @Test fun chaptersByNumberOrName() {
+        assertEquals("XV", Search.chapter(uk, "розділ XV")?.num)
+        assertEquals("XV", Search.chapter(uk, "розділ 15")?.num)
+        assertEquals("XV", Search.chapter(uk, "п. 3 розділу XV")?.num)
+        assertEquals("XV", Search.chapter(uk, "перехідні положення")?.num)
+        assertEquals("IV", Search.chapter(en, "chapter iv")?.num)
+        assertNull(Search.chapter(uk, "свобода слова"))
+        assertTrue(Search.find(uk, "розділ XV").isEmpty())
+    }
+
+    @Test fun englishWordsAsJournalistsType() {
+        for (q in listOf("presidential election", "authorities", "liberties", "taxes", "organization", "martial law", "Crimea")) {
+            assertTrue(q, Search.find(en, q).isNotEmpty())
+        }
+        // "Crimea" is not "criminal"
+        for (h in Search.find(en, "Crimea")) for (m in h.marks) assertTrue(Search.normalize(h.excerpt.substring(m)).startsWith("crimea"))
+    }
 }

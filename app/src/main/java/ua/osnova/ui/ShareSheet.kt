@@ -3,7 +3,6 @@ package ua.osnova.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
-import android.content.res.Resources
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,6 +36,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -69,8 +70,13 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
     // Chosen pieces by their position; all of them at first, so a choice is made by taking some away
     var chosen by rememberSaveable(page.key) { mutableStateOf(pieces.indices.toList()) }
     val picked = if (choosing) pieces.filterIndexed { i, _ -> i in chosen } else pieces
-    val source = picked.takeIf { it.isNotEmpty() }?.let { quoteSource(res, page, if (it.size == pieces.size) null else it) }
-    val words = picked.flatMap { piece -> piece.paragraphs.map(paras::get) }
+    val source = picked.takeIf { it.isNotEmpty() }?.let { Quote.source(page, if (it.size == pieces.size) null else it, lang) }
+    val words = Quote.words(paras, picked)
+    val pieceName = when (page) {
+        Page.Preamble -> R.string.share_paragraph
+        is Page.Of -> R.string.share_part
+        is Page.Text -> R.string.share_point
+    }
     val open = res.getString(R.string.quote_open)
     val close = res.getString(R.string.quote_close)
     val quote = source?.let { Quote.text(words, open, close, it) }
@@ -98,13 +104,17 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                     verticalAlignment = Alignment.Top,
                 ) {
                     Checkbox(checked = on, onCheckedChange = null, modifier = Modifier.padding(top = 2.dp, end = 12.dp))
-                    Text(
-                        inLanguage(paras[piece.paragraphs.first], lang),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = scheme.onBackground,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    Column {
+                        // Its number, as it will be cited: "Частина 2"
+                        Text(res.getString(pieceName, piece.number), style = MaterialTheme.typography.labelLarge, color = scheme.primary)
+                        Text(
+                            inLanguage(paras[piece.paragraphs.first], lang),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = scheme.onBackground,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
         }
@@ -119,10 +129,16 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                 if (source == null) {
                     Text(stringResource(R.string.share_none), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
                 } else {
+                    var cut by remember(words) { mutableStateOf(false) }
                     Text(inLanguage(Quote.body(words, open, close), lang), style = MaterialTheme.typography.bodyMedium,
-                        color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis)
+                        color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis,
+                        onTextLayout = { cut = it.hasVisualOverflow })
+                    // Said by TalkBack as parts are chosen
                     Text(inLanguage(Quote.SOURCE_MARK + source, lang), style = MaterialTheme.typography.bodyMedium,
-                        color = scheme.onSurfaceVariant)
+                        color = scheme.onSurfaceVariant, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                    if (cut) {
+                        Text(stringResource(R.string.share_sent_whole), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                    }
                 }
             }
         }
@@ -138,7 +154,10 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                     }
                 },
                 modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-            ) { Text(stringResource(if (copied) R.string.share_copied else R.string.share_copy)) }
+            ) {
+                Text(stringResource(if (copied) R.string.share_copied else R.string.share_copy),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+            }
             Button(
                 onClick = {
                     quote ?: return@Button
@@ -150,27 +169,4 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
             ) { Text(stringResource(R.string.share_send)) }
         }
     }
-}
-
-/**
- * Where a quote is from, in the text's language: "Конституція України, стаття 85, частина 2",
- * "Constitution of Ukraine, Chapter XV, clauses 9, 16-1", "Конституція України, преамбула".
- * [chosen] is null when the whole page is quoted.
- */
-fun quoteSource(res: Resources, page: Page, chosen: List<Quote.Piece>?): String {
-    val where = when (page) {
-        Page.Preamble -> res.getString(R.string.quote_preamble)
-        is Page.Of -> res.getString(R.string.quote_article, page.article.num)
-        is Page.Text -> res.getString(R.string.quote_chapter, page.chapter.num)
-    }
-    val which = chosen?.let { p ->
-        val numbers = p.joinToString(", ") { it.number }
-        val (one, many) = when (page) {
-            Page.Preamble -> R.string.quote_paragraph to R.string.quote_paragraphs
-            is Page.Of -> R.string.quote_part to R.string.quote_parts
-            is Page.Text -> R.string.quote_point to R.string.quote_points
-        }
-        res.getString(if (p.size == 1) one else many, numbers)
-    }
-    return listOfNotNull(res.getString(R.string.quote_constitution), where, which).joinToString(", ")
 }
