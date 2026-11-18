@@ -1,0 +1,1 @@
+Osnova 0.1.1: now also for Android 8–11, so for old tablets too. A voice can be passed on to someone without internet. Quotes are cited as lawyers cite them. Search understands more ways of typing, and English word endings. Reading aloud goes on after a call and no longer stops in silence. Better with TalkBack.
