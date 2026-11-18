@@ -19,6 +19,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.unit.sp
@@ -231,7 +234,10 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
     }
     val mark = SpanStyle(background = scheme.secondaryContainer)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        // The text can be selected and copied
+        // The text can be selected, copied, and shared as a quote with where it is from
+        val view = LocalView.current
+        val menu = remember(page, lang, res) { SelectionMenu(view, c, page, lang, res) }
+        CompositionLocalProvider(LocalTextToolbar provides menu) {
         SelectionContainer {
             LazyColumn(
                 Modifier.widthIn(max = READING_WIDTH).fillMaxWidth(),
@@ -264,8 +270,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 items(paras.size) { j ->
                     val p = paras[j]
                     val on = spokenIn(j)
-                    // Long words break with a hyphen, by the text's language, rather than anywhere
-                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto), color = scheme.onBackground)
+                    // Even edges, as in a printed book: long words break with a hyphen, by the text's language
+                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto, textAlign = TextAlign.Justify), color = scheme.onBackground)
                 }
                 if (isLast) {
                     item {
@@ -300,6 +306,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                     }
                 }
             }
+        }
         }
     }
 }

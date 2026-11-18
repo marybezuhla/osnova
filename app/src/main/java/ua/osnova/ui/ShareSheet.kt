@@ -129,16 +129,11 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                 if (source == null) {
                     Text(stringResource(R.string.share_none), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
                 } else {
-                    var cut by remember(words) { mutableStateOf(false) }
                     Text(inLanguage(Quote.body(words, open, close), lang), style = MaterialTheme.typography.bodyMedium,
-                        color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis,
-                        onTextLayout = { cut = it.hasVisualOverflow })
+                        color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis)
                     // Said by TalkBack as parts are chosen
                     Text(inLanguage(Quote.SOURCE_MARK + source, lang), style = MaterialTheme.typography.bodyMedium,
                         color = scheme.onSurfaceVariant, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                    if (cut) {
-                        Text(stringResource(R.string.share_sent_whole), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
-                    }
                 }
             }
         }

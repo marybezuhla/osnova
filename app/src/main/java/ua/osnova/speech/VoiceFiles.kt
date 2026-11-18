@@ -30,10 +30,13 @@ object VoiceFiles {
         val bytes: Long,
         val sha256: String,
     ) {
-        /** Tetiana (robinhad/ukrainian-tts v5.0.0, as ONNX): lies in Pysanka's v1.0.0 release, never deleted. */
+        /**
+         * Tetiana (robinhad/ukrainian-tts v5.0.0, as ONNX, the file Hramota makes): in Osnova's own "voices" release,
+         * which is never deleted.
+         */
         TETIANA(
             "uk-tetiana.onnx", "uk-tetiana.onnx",
-            "https://github.com/marybezuhla/pysanka/releases/download/v1.0.0/uk-tetiana.onnx",
+            "https://github.com/marybezuhla/osnova/releases/download/voices/uk-tetiana.onnx",
             151_507_141L, "6d76437e89207e973266b7b3911de8f2bab8cef25bbaaeeb40d34f5a0bae8df9",
         ),
 

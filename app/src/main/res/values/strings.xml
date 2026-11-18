@@ -43,7 +43,6 @@
     <string name="share_part">Paragraph %1$s</string>
     <string name="share_paragraph">Paragraph %1$s</string>
     <string name="share_point">Clause %1$s</string>
-    <string name="share_sent_whole">The whole quote is sent, not only what fits here.</string>
     <string name="bookmark_added">Bookmarked: %1$s</string>
     <string name="texts_open_en">Official English translation</string>
     <string name="share_copy">Copy</string>

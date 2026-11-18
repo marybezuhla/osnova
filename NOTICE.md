@@ -23,7 +23,7 @@ Osnova is distributed under GPL-3.0-or-later ([LICENSE](LICENSE)). The app inclu
 
 Ті самі голоси й файли, що в Грамоті · The same voices and files as in Hramota:
 
-- **Тетяна · Tetiana** — модель [robinhad/ukrainian-tts](https://github.com/robinhad/ukrainian-tts) v5.0.0 (MIT; записи — ukrainian-tts-datasets, Apache 2.0), у форматі ONNX. Не входить у застосунок: людина завантажує її сама з випуску Писанки v1.0.0, Основа приймає лише точний файл (SHA-256).
+- **Тетяна · Tetiana** — модель [robinhad/ukrainian-tts](https://github.com/robinhad/ukrainian-tts) v5.0.0 (MIT; записи — ukrainian-tts-datasets, Apache 2.0), у форматі ONNX. Не входить у застосунок: людина завантажує її сама з випуску «Голоси» Основи (той самий файл, що робить Грамота), Основа приймає лише точний файл (SHA-256).
 - **Cori** — `en_GB-cori-medium` з [rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices) (MIT; записи LibriVox — суспільне надбання), за ревізією 293cad05; так само завантажується окремо й перевіряється за SHA-256.
 - **Словник наголосів · Stress dictionary** — [ukrainian-word-stress](https://github.com/lang-uk/ukrainian-word-stress) 2.1.0 (MIT), `app/src/main/assets/voice/stress.bin`.
 - **eSpeak NG** 1.52.0, зібраний у Грамоті з сирцевого коду ([espeak-ng](https://github.com/espeak-ng/espeak-ng/tree/4870adfa25b1a32b4361592f1be8a40337c58d6c)); бібліотека й дані — у `espeak/` та `app/src/main/assets/voice/espeak-ng-data` із сумами `espeak/SHA256SUMS`.
