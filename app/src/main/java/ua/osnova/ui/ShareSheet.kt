@@ -49,9 +49,9 @@ import ua.osnova.text.Quote
 /** "Share a quote" over the reader. Its content is drawn by [ShareContent], so the screen tests can show it. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShareSheet(c: Constitution, page: Page, lang: String, onDismiss: () -> Unit) {
+fun ShareSheet(c: Constitution, page: Page, lang: String, parts: List<Int>? = null, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.background) {
-        ShareContent(c, page, lang)
+        ShareContent(c, page, lang, parts)
     }
 }
 
@@ -60,15 +60,17 @@ fun ShareSheet(c: Constitution, page: Page, lang: String, onDismiss: () -> Unit)
  * Android's own "Share" (messengers, mail, social networks). Nothing is sent by Osnova itself.
  */
 @Composable
-fun ShareContent(c: Constitution, page: Page, lang: String) {
+fun ShareContent(c: Constitution, page: Page, lang: String, parts: List<Int>? = null) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     val res = textResources(lang)
     val pieces = remember(c, page) { Quote.pieces(c, page) }
     val paras = c.paragraphs(page)
-    var choosing by rememberSaveable(page.key) { mutableStateOf(false) }
+    // From text selected on the page: its parts are chosen already, and the others are there to add
+    val given = parts?.filter { it in pieces.indices }?.takeIf { it.isNotEmpty() }
+    var choosing by rememberSaveable(page.key, given) { mutableStateOf(given != null) }
     // Chosen pieces by their position; all of them at first, so a choice is made by taking some away
-    var chosen by rememberSaveable(page.key) { mutableStateOf(pieces.indices.toList()) }
+    var chosen by rememberSaveable(page.key, given) { mutableStateOf(given ?: pieces.indices.toList()) }
     val picked = if (choosing) pieces.filterIndexed { i, _ -> i in chosen } else pieces
     val source = picked.takeIf { it.isNotEmpty() }?.let { Quote.source(page, if (it.size == pieces.size) null else it, lang) }
     val words = Quote.words(paras, picked)

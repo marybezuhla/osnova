@@ -63,7 +63,10 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(AppLanguage.wrap(newBase))
     }
 
+    @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        // The menu over selected text is Osnova's own (it has "Share"): Compose's newer menu does not take it
+        androidx.compose.foundation.ComposeFoundationFlags.isNewContextMenuEnabled = false
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         // The list of recent apps shows no picture of what was read (Android 13 and newer)
