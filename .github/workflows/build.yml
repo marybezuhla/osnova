@@ -36,7 +36,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
         with:
           gradle-version: "8.14.3"
@@ -122,7 +121,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-
 
       # A release is built from scratch, without anything cached by earlier runs
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
