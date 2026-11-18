@@ -37,7 +37,14 @@ object Search {
 
     /** Lower case and one kind of apostrophe, letter for letter: positions stay the same as in the text. */
     fun normalize(s: String): String = buildString(s.length) {
-        for (ch in s) append(if (ch == '’' || ch == 'ʼ' || ch == '`' || ch == '‘') '\'' else ch.lowercaseChar())
+        for ((i, ch) in s.withIndex()) append(
+            when {
+                ch == '’' || ch == 'ʼ' || ch == '`' || ch == '‘' -> '\''
+                // A Latin "i" between Ukrainian words is the Ukrainian "і" (one is in article 147 on the Rada's site)
+                (ch == 'i' || ch == 'I') && UkrainianI.at(s, i) -> 'і'
+                else -> ch.lowercaseChar()
+            }
+        )
     }
 
     /**
@@ -150,4 +157,15 @@ object Search {
         val inside = marks.filter { it.first >= start && it.last < end }.map { (it.first + shift)..(it.last + shift) }
         return Hit(page, paragraph, prefix + text.substring(start, end) + suffix, inside)
     }
+}
+
+/** A Latin "i" standing alone between Ukrainian words, where the Ukrainian "і" ("and") was meant. */
+object UkrainianI {
+    private fun cyrillic(c: Char?) = c != null && Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CYRILLIC
+
+    fun at(s: String, i: Int): Boolean =
+        s.getOrNull(i - 1) == ' ' && s.getOrNull(i + 1) == ' ' && cyrillic(s.getOrNull(i - 2)) && cyrillic(s.getOrNull(i + 2))
+
+    /** The text with each such "i" made Ukrainian, as the voice should read it */
+    fun fix(s: String): String = buildString(s.length) { for ((i, ch) in s.withIndex()) append(if (ch == 'i' && at(s, i)) 'і' else ch) }
 }

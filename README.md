@@ -14,7 +14,7 @@
 - **Слово в слово** з сайту Верховної Ради: текст у застосунку щоразу збирається з закріплених джерел, і CI перевіряє, що в ньому нічого не змінено вручну ([scripts/text](scripts/text)).
 - **Пошук** обома мовами, з різними формами слів; номер статті відкриває її одразу.
 - **Читання вголос** без інтернету жіночими голосами Основи, тими самими, що в Грамоті (українською з правильними наголосами й англійською), або голосом телефона; читає й з вимкненим екраном. Голоси завантажуються один раз (152 і 64 МБ).
-- **Поділитися цитатою:** уся стаття чи вибрані частини з посиланням, як у юристів («стаття 85, частина 2»).
+- **Поділитися цитатою:** уся стаття чи вибрані частини з посиланням, як у юристів («Частина друга статті 85 Конституції України»).
 - **Закладки** й «Продовжити» з того місця, де ви зупинилися.
 - **Світлі й темні теми** з рідними назвами, як у Коморі, або кольори телефона (Android 12+).
 
@@ -39,7 +39,7 @@ The Constitution of Ukraine on your phone: the full text of the current edition 
 - **Word for word** from the Verkhovna Rada's site: the text in the app is rebuilt from pinned sources each time, and CI checks nothing in it was changed by hand ([scripts/text](scripts/text)).
 - **Search** in both languages, with word forms; an article number opens the article at once.
 - **Reading aloud** offline in Osnova's female voices, the same as Hramota's (Ukrainian with the right stresses, and English) or the phone's voice; it reads with the screen off too. The voices are downloaded once (152 and 64 MB).
-- **Share a quote:** the whole article or chosen parts, cited the way lawyers do ("Article 85, paragraph 2").
+- **Share a quote:** the whole article or chosen parts, cited the way lawyers do ("Article 85(2) of the Constitution of Ukraine").
 - **Bookmarks** and "Continue reading" from where you stopped.
 - **Light and dark themes** with Ukrainian names, as in Komora, or the phone's colours (Android 12+).
 

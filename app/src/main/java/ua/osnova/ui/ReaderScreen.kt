@@ -51,6 +51,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -263,7 +264,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 items(paras.size) { j ->
                     val p = paras[j]
                     val on = spokenIn(j)
-                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge, color = scheme.onBackground)
+                    // Long words break with a hyphen, by the text's language, rather than anywhere
+                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto), color = scheme.onBackground)
                 }
                 if (isLast) {
                     item {
