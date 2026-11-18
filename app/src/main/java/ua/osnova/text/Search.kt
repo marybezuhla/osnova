@@ -28,6 +28,7 @@ object Search {
     /** "розділ XV", "р. 15", "chapter iv", "п. 3 розділу XV" (the chapter is where it goes) */
     private val CHAPTER = Regex("^(?:(?:п|пункт\\p{L}*|clause)\\.?\\s*\\d+(?:-\\d+)?\\.?\\s*)?(?:розд\\p{L}*|р\\.|chapter|ch\\.)\\s*([ivxl]+|\\d{1,2})\\.?$")
     private val ROMAN = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV")
+    private val AMERICAN = Regex("iz(e|es|ed|ing|ation|ations)$")
     /** Latin letters that look like Ukrainian ones, typed by mistake into a Ukrainian word */
     private val LOOKALIKE = mapOf('a' to 'а', 'c' to 'с', 'e' to 'е', 'i' to 'і', 'o' to 'о', 'p' to 'р', 'x' to 'х', 'y' to 'у', 'k' to 'к', 'm' to 'м', 'h' to 'н', 't' to 'т', 'b' to 'в')
 
@@ -63,7 +64,8 @@ object Search {
 
     /** An English word without its ending: "elections", "presidential", "authorities", "taxes", "organization". */
     private fun english(word: String): String {
-        val w = word.replace("ization", "isation").replace("izing", "ising").replace("ize", "ise")
+        // The text spells "-ise" ("organisation"), but "citizen" stays as it is
+        val w = word.replace(AMERICAN, "is$1")
         return when {
             w.length >= 8 && w.endsWith("ial") -> w.dropLast(3)
             w.length >= 5 && w.endsWith("ies") -> w.dropLast(3)

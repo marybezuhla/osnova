@@ -98,7 +98,7 @@ class SearchTest {
     }
 
     @Test fun englishWordsAsJournalistsType() {
-        for (q in listOf("presidential election", "authorities", "liberties", "taxes", "organization", "martial law", "Crimea")) {
+        for (q in listOf("citizens", "presidential election", "authorities", "liberties", "taxes", "organization", "martial law", "Crimea")) {
             assertTrue(q, Search.find(en, q).isNotEmpty())
         }
         // "Crimea" is not "criminal"
