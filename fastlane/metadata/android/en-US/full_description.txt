@@ -1,0 +1,16 @@
+Osnova is the Constitution of Ukraine on your phone: the full text of the current edition (from 1 January 2020) word for word as published by the Verkhovna Rada, and the official English translation.
+
+• Reading aloud offline: Osnova's female voices (Ukrainian with the right stresses, and English) are downloaded once (152 MB and 64 MB), or the phone's voice reads. It reads with the screen off too.
+• Share a quote: the whole article or chosen parts, cited the way lawyers do ("Article 85, paragraph 2").
+• Search in both languages, with word forms; an article number opens the article at once.
+• Bookmarks and "Continue reading" from where you stopped.
+• Switch the language of the text on any article without losing your place.
+• Light and dark themes (Poppy, Viburnum, Starry night and more), or the phone's colours.
+
+No internet, ads, accounts or tracking. Its permissions are only there to read aloud with the screen off.
+
+Requires Android 12 or newer on a 64-bit ARM processor (arm64), as almost every phone has.
+
+This is not legal advice. The official text: zakon.rada.gov.ua.
+
+The code was written with AI (Claude, Anthropic), directed and tested by the author.

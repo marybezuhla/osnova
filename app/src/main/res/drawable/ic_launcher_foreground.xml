@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An open book (two cream pages) with a yellow bookmark: the Constitution to read and keep places in.
+     Drawn inside the icon's 72 dp visible circle, from the approved sketch (scaled 1:2 around its centre). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="@color/icon_cream"
+        android:pathData="M32,43 Q43,39 52.5,43 L52.5,69 Q43,65 32,69 Z" />
+    <path
+        android:fillColor="@color/icon_cream"
+        android:pathData="M55.5,43 Q65,39 76,43 L76,69 Q65,65 55.5,69 Z" />
+    <path
+        android:fillColor="@color/icon_gold"
+        android:pathData="M65,41 L71,40 L71,57 L68,54 L65,57 Z" />
+</vector>

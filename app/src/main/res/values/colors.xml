@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The window behind the screen at start, as the default day theme (Sky) -->
+    <color name="background">#D9E0E7</color>
+    <!-- The icon: the same deep blue, cream and yellow as Mandat's -->
+    <color name="icon_cream">#F9EBCE</color>
+    <color name="icon_gold">#FDC218</color>
+    <color name="icon_background_light">#FF013E7C</color>
+    <color name="icon_background_dark">#FF01306A</color>
+</resources>

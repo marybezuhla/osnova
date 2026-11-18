@@ -1,0 +1,166 @@
+package ua.osnova.speech
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ServiceInfo
+import android.graphics.drawable.Icon
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.media.MediaMetadata
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
+import android.os.IBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import ua.osnova.R
+
+/**
+ * Keeps Osnova reading with the screen off: the controls on the lock screen and in the notifications, headphone
+ * buttons, a pause when the headphones come out or a call comes in. Nothing else; reading itself is [ReadAloud].
+ */
+class ReadAloudService : Service() {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private lateinit var session: MediaSession
+    private lateinit var audio: AudioManager
+    private var focus: AudioFocusRequest? = null
+    private var foreground = false
+
+    private val noisy = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) { if (intent?.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) ReadAloud.pause() }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        audio = getSystemService(AudioManager::class.java)
+        session = MediaSession(this, "Osnova").apply {
+            setCallback(object : MediaSession.Callback() {
+                override fun onPlay() { ReadAloud.resume() }
+                override fun onPause() = ReadAloud.pause()
+                override fun onSkipToNext() { ReadAloud.skip(1) }
+                override fun onSkipToPrevious() { ReadAloud.skip(-1) }
+                override fun onStop() = ReadAloud.stop()
+            })
+            isActive = true
+        }
+        getSystemService(NotificationManager::class.java).createNotificationChannel(
+            NotificationChannel(CHANNEL, getString(R.string.read_aloud), NotificationManager.IMPORTANCE_LOW).apply { setShowBadge(false) }
+        )
+        androidx.core.content.ContextCompat.registerReceiver(this, noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
+        scope.launch {
+            ReadAloud.state.map { it.active to it.playing }.distinctUntilChanged().collect { (active, playing) ->
+                if (!active) { stopSelf(); return@collect }
+                if (playing) takeFocus() else dropFocus()
+                session.setPlaybackState(PlaybackState.Builder()
+                    .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE or PlaybackState.ACTION_PLAY_PAUSE or
+                        PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS or PlaybackState.ACTION_STOP)
+                    .setState(if (playing) PlaybackState.STATE_PLAYING else PlaybackState.STATE_PAUSED, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f).build())
+                // The lock screen's player shows only "Reading aloud · Osnova": someone holding a locked phone
+                // (the policy's "other hands, forced to show") does not see what is being listened to
+                session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, getString(R.string.read_aloud))
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST, getString(R.string.app_name)).build())
+                show(playing)
+            }
+        }
+    }
+
+    private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
+        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) ReadAloud.pause()
+    }
+
+    private fun takeFocus() {
+        if (focus != null) return
+        focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+            .setOnAudioFocusChangeListener(focusListener).build().also { audio.requestAudioFocus(it) }
+    }
+
+    private fun dropFocus() { focus?.let { audio.abandonAudioFocusRequest(it) }; focus = null }
+
+    private fun action(code: Int, action: String) =
+        PendingIntent.getService(this, code, Intent(this, ReadAloudService::class.java).setAction(action), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+    private fun show(playing: Boolean) {
+        val open = packageManager.getLaunchIntentForPackage(packageName)?.let { PendingIntent.getActivity(this, 9, it, PendingIntent.FLAG_IMMUTABLE) }
+        // On the lock screen, without what is being read
+        val public = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_read_aloud)
+            .setContentTitle(getString(R.string.read_aloud)).setContentText(getString(R.string.app_name)).build()
+        val n = Notification.Builder(this, CHANNEL)
+            .setSmallIcon(R.drawable.ic_read_aloud)
+            // The same as on the lock screen: what is read shows only in Osnova itself
+            .setContentTitle(getString(R.string.read_aloud))
+            .setContentText(getString(R.string.app_name))
+            .setContentIntent(open)
+            .setOngoing(playing)
+            .setShowWhen(false)
+            .setVisibility(Notification.VISIBILITY_PRIVATE)
+            .setPublicVersion(public)
+            .addAction(Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_previous), getString(R.string.read_previous), action(1, ACTION_PREVIOUS)).build())
+            .addAction(Notification.Action.Builder(Icon.createWithResource(this, if (playing) R.drawable.ic_pause else R.drawable.ic_play),
+                getString(if (playing) R.string.read_pause else R.string.read_play), action(2, ACTION_TOGGLE)).build())
+            .addAction(Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_next), getString(R.string.read_next), action(3, ACTION_NEXT)).build())
+            .addAction(Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_close), getString(R.string.read_stop), action(4, ACTION_STOP)).build())
+            .setStyle(Notification.MediaStyle().setMediaSession(session.sessionToken).setShowActionsInCompactView(0, 1, 2))
+            .build()
+        if (!foreground) {
+            // Android may refuse it from the background (resumed later): then the controls are only shown
+            foreground = try { startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK); true } catch (e: Exception) { getSystemService(NotificationManager::class.java).notify(ID, n); false }
+        } else getSystemService(NotificationManager::class.java).notify(ID, n)
+        // Paused, the controls stay (and Osnova with them) until reading ends; long paused, reading ends by itself
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_TOGGLE -> if (ReadAloud.state.value.playing) ReadAloud.pause() else ReadAloud.resume()
+            ACTION_NEXT -> ReadAloud.skip(1)
+            ACTION_PREVIOUS -> ReadAloud.skip(-1)
+            ACTION_STOP -> ReadAloud.stop()
+        }
+        // In the foreground at once, every time it is started (Android asks for it within seconds, even when
+        // reading has already ended by now); then it goes if there is nothing to read
+        if (!foreground) show(ReadAloud.state.value.playing)
+        if (!ReadAloud.state.value.active) { stopForeground(STOP_FOREGROUND_REMOVE); foreground = false; stopSelf() }
+        return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        scope.cancel()
+        dropFocus()
+        try { unregisterReceiver(noisy) } catch (_: Exception) {}
+        session.release()
+        getSystemService(NotificationManager::class.java).cancel(ID)
+        ReadAloud.release()
+        super.onDestroy()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    companion object {
+        private const val CHANNEL = "reading"
+        private const val ID = 7
+        private const val ACTION_TOGGLE = "ua.osnova.read.TOGGLE"
+        private const val ACTION_NEXT = "ua.osnova.read.NEXT"
+        private const val ACTION_PREVIOUS = "ua.osnova.read.PREVIOUS"
+        private const val ACTION_STOP = "ua.osnova.read.STOP"
+
+        fun show(context: Context) {
+            try { context.startForegroundService(Intent(context, ReadAloudService::class.java)) } catch (_: Exception) {}
+        }
+
+        fun hide(context: Context) {
+            try { context.stopService(Intent(context, ReadAloudService::class.java)) } catch (_: Exception) {}
+        }
+    }
+}

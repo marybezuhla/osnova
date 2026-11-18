@@ -1,0 +1,90 @@
+package ua.osnova.ui
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import ua.osnova.R
+import ua.osnova.ui.theme.CardTitle
+
+private const val SOURCE_URL = "https://github.com/marybezuhla/osnova"
+private const val LICENSE_URL = "https://github.com/marybezuhla/osnova/blob/main/LICENSE"
+/** The official text on the Verkhovna Rada's site. */
+private const val TEXT_URL = "https://zakon.rada.gov.ua/laws/show/254к/96-вр"
+/** Its official English translation, the PDF the English text is from. */
+private const val TEXT_EN_URL = "https://zakonst.rada.gov.ua/docs/en/constitution.pdf"
+
+/**
+ * "About Osnova": the author's letter and the ways to support Ukraine (as in her other apps), where the
+ * texts come from, and the plain facts: licence, AI, libraries, what the app does not do, version.
+ * Links only open in the browser.
+ */
+@Composable
+fun AboutPage(onBack: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val uri = LocalUriHandler.current
+    // No browser on the phone: nothing happens rather than a crash
+    val open = { url: String -> runCatching { uri.openUri(url) }; Unit }
+    Scaffold(containerColor = scheme.background, topBar = { Bar(stringResource(R.string.about_osnova), onBack) }) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
+            Column(Modifier.widthIn(max = READING_WIDTH).fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                AuthorLetter()
+                Spacer(Modifier.height(24.dp))
+                SupportUkraine(open)
+
+                Spacer(Modifier.height(24.dp))
+                Heading(stringResource(R.string.texts_title))
+                Body(stringResource(R.string.texts_body))
+                TextButton(onClick = { open(TEXT_URL) }) { Text(stringResource(R.string.texts_open)) }
+                TextButton(onClick = { open(TEXT_EN_URL) }) { Text(stringResource(R.string.texts_open_en)) }
+
+                Spacer(Modifier.height(16.dp))
+                Heading(stringResource(R.string.about_title))
+                Body(stringResource(R.string.about_text))
+                val context = LocalContext.current
+                val version = remember {
+                    runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull()
+                }
+                version?.let { Body(stringResource(R.string.about_version, it)) }
+                Row {
+                    TextButton(onClick = { open(SOURCE_URL) }) { Text(stringResource(R.string.source_code)) }
+                    TextButton(onClick = { open(LICENSE_URL) }) { Text(stringResource(R.string.license)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Heading(text: String) {
+    Text(text, style = CardTitle, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center,
+        modifier = Modifier.padding(bottom = 4.dp).semantics { heading() })
+}
+
+@Composable
+private fun Body(text: String) {
+    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
+}
