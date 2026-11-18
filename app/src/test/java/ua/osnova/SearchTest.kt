@@ -116,4 +116,11 @@ class SearchTest {
         // "Crimea" is not "criminal"
         for (h in Search.find(en, "Crimea")) for (m in h.marks) assertTrue(Search.normalize(h.excerpt.substring(m)).startsWith("crimea"))
     }
+
+    @Test fun latinIBetweenUkrainianWords() {
+        // Article 147 on the Rada's site has "рішень i висновків" with a Latin "i"
+        assertTrue(Search.find(uk, "рішень і висновків").any { uk.pages[it.page].key == "a:147" })
+        assertEquals("рішень і висновків", ua.osnova.text.UkrainianI.fix("рішень i висновків"))
+        assertEquals("Article i of", ua.osnova.text.UkrainianI.fix("Article i of"))
+    }
 }

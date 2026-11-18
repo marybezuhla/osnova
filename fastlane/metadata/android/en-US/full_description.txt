@@ -1,7 +1,7 @@
 Osnova is the Constitution of Ukraine on your phone: the full text of the current edition (from 1 January 2020) word for word as published by the Verkhovna Rada, and the official English translation.
 
 • Reading aloud offline: Osnova's female voices (Ukrainian with the right stresses, and English) are downloaded once (152 MB and 64 MB), or the phone's voice reads. It reads with the screen off too.
-• Share a quote: the whole article or chosen parts, cited the way lawyers do ("Article 85, paragraph 2").
+• Share a quote: the whole article or chosen parts, cited the way lawyers do ("Article 85(2) of the Constitution of Ukraine").
 • Search in both languages, with word forms; an article number opens the article at once.
 • Bookmarks and "Continue reading" from where you stopped.
 • Switch the language of the text on any article without losing your place.

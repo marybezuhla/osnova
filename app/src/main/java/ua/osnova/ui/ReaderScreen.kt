@@ -19,6 +19,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.unit.sp
@@ -51,6 +55,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -229,8 +234,13 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
         if (spokenParagraph != null) list.animateScrollToItem(spokenParagraph + before)
     }
     val mark = SpanStyle(background = scheme.secondaryContainer)
+    // Even edges, as in a printed book; with a large font a line has too few words for that, and gaps would open
+    val align = if (LocalDensity.current.fontScale < 1.3f) TextAlign.Justify else TextAlign.Start
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        // The text can be selected and copied
+        // The text can be selected, copied, and shared as a quote with where it is from
+        val view = LocalView.current
+        val menu = remember(page, lang, res) { SelectionMenu(view, c, page, lang, res) }
+        CompositionLocalProvider(LocalTextToolbar provides menu) {
         SelectionContainer {
             LazyColumn(
                 Modifier.widthIn(max = READING_WIDTH).fillMaxWidth(),
@@ -263,7 +273,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 items(paras.size) { j ->
                     val p = paras[j]
                     val on = spokenIn(j)
-                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge, color = scheme.onBackground)
+                    // Long words break with a hyphen, by the text's language
+                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto, textAlign = align), color = scheme.onBackground)
                 }
                 if (isLast) {
                     item {
@@ -298,6 +309,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                     }
                 }
             }
+        }
         }
     }
 }

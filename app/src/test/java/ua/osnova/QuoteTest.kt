@@ -1,6 +1,7 @@
 package ua.osnova
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import ua.osnova.text.Constitution
@@ -73,5 +74,15 @@ class QuoteTest {
         val words = Quote.words(paras, listOf(p[1], p[4]))
         assertEquals(listOf(paras[1], Quote.GAP, paras[4]), words)
         assertEquals(paras, Quote.words(paras, p))
+    }
+
+    @Test fun selectedTextIsCitedByItsParts() {
+        val a = uk.article("106")!!
+        val paras = uk.paragraphs(a)
+        // A selection with the chapter's name and the article's heading above the words: only the words count
+        val (lines, chosen) = Quote.selected(uk, a, "V. Президент України\nСтаття 106\n" + paras[0] + "\n" + paras[1].take(30))!!
+        assertEquals(listOf(paras[0], paras[1].take(30).trim()), lines)
+        assertEquals("Частина перша статті 106 Конституції України", Quote.source(a, chosen, "uk"))
+        assertNull(Quote.selected(uk, a, "Стаття 106"))
     }
 }

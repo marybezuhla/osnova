@@ -1,0 +1,47 @@
+name: Publish the voice
+
+# Run by pushing the voices-publish branch; publishes only after the owner approves the "release" environment.
+# Puts Tetiana (uk-tetiana.onnx) in Osnova's own "voices" release, where the app's "Download" button leads.
+# The file is not made here: it is Hramota's, in two parts in its public repository at a fixed commit, joined
+# and checked by size and SHA-256 (the same numbers the app checks) before anything is published.
+on:
+  push:
+    branches: [voices-publish]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/voices-notes.md
+          sparse-checkout-cone-mode: false
+      - name: Join and check
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="https://raw.githubusercontent.com/marybezuhla/hramota/5a91c8e9b0b152f994e5ae0231d39b4b70add0ac/app/src/main/voice"
+          mkdir out
+          for p in 0 1; do curl -fsSL --retry 3 --proto '=https' -o "part$p" "$SRC/uk-tetiana.onnx.part$p"; done
+          cat part0 part1 > out/uk-tetiana.onnx
+          test "$(stat -c %s out/uk-tetiana.onnx)" = 151507141
+          echo "6d76437e89207e973266b7b3911de8f2bab8cef25bbaaeeb40d34f5a0bae8df9  out/uk-tetiana.onnx" | sha256sum -c -
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Published once and never changed: an existing release stops it
+          if gh release view voices --repo "$REPO" >/dev/null 2>&1; then echo "::error::The voices release exists already"; exit 1; fi
+          gh release create voices out/uk-tetiana.onnx --repo "$REPO" --target "${{ github.sha }}" \
+            --title "Голоси · Voices" --notes-file .github/voices-notes.md --latest=false

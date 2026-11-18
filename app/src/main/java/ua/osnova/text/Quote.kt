@@ -99,6 +99,20 @@ object Quote {
     /** A part's number as a word ("друга"); a number there is no word for here stays a number. */
     private fun ordinal(number: String, words: List<String>): String = number.toIntOrNull()?.let { words.getOrNull(it - 1) } ?: number
 
+    /**
+     * Text selected on a page, as a quote: only its lines that are the page's own words (not its heading or notes),
+     * and the parts they are in, to cite. Null when nothing selected is the page's text.
+     */
+    fun selected(c: Constitution, page: Page, selection: String): Pair<List<String>, List<Piece>?>? {
+        val paras = c.paragraphs(page)
+        val lines = selection.lines().map { it.trim() }.filter { it.isNotEmpty() }
+            .filter { line -> paras.any { it.contains(line) } }
+        if (lines.isEmpty()) return null
+        val all = pieces(c, page)
+        val chosen = all.filter { piece -> piece.paragraphs.any { i -> lines.any { paras[i].contains(it) } } }
+        return lines to chosen.takeIf { it.size < all.size }
+    }
+
     /** The chosen paragraphs in quotation marks. */
     fun body(paragraphs: List<String>, open: String, close: String): String = open + paragraphs.joinToString("\n") + close
 
