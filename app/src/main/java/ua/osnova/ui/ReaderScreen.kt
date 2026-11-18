@@ -107,7 +107,13 @@ fun ReaderScreen(
     val marked = current.key in bookmarks
     // The page shared is the one open when "Share" was tapped, even while reading aloud turns the pages
     var sharing by rememberSaveable { mutableStateOf<String?>(null) }
-    sharing?.let(c::indexOf)?.let { ShareSheet(c, c.pages[it], lang) { sharing = null } }
+    // "a:104" or, from text selected on the page, "a:104#0,1": the parts it is in, already chosen
+    sharing?.let { s ->
+        c.indexOf(s.substringBefore('#'))?.let { i ->
+            val parts = s.substringAfter('#', "").takeIf { it.isNotEmpty() }?.split(',')?.mapNotNull(String::toIntOrNull)
+            ShareSheet(c, c.pages[i], lang, parts) { sharing = null }
+        }
+    }
 
     // Reading aloud: this text in this language is one document; it stops when the reader closes or the
     // language changes. The pages turn by themselves to follow it.
@@ -164,7 +170,8 @@ fun ReaderScreen(
             }
             HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth(), key = { c.pages[it].key }) { i ->
                 val spoken = if (readingHere && reading.unit == i) doc.headLength(i).let { h -> (reading.start - h)..<(reading.end - h) } else null
-                PageText(c, res, lang, c.pages[i], isLast = i == c.pages.lastIndex, spoken = spoken, focus = focus.takeIf { i == startIndex })
+                PageText(c, res, lang, c.pages[i], isLast = i == c.pages.lastIndex, spoken = spoken, focus = focus.takeIf { i == startIndex },
+                    onShare = { parts -> sharing = c.pages[i].key + (parts?.let { "#" + it.joinToString(",") } ?: "") })
             }
             if (readingHere) {
                 ReadAloudBar(reading, onSettings = { readSettings = true })
@@ -212,7 +219,7 @@ private fun pageShort(res: Resources, page: Page): String = when (page) {
 }
 
 @Composable
-private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, isLast: Boolean, spoken: IntRange?, focus: Int? = null) {
+private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, isLast: Boolean, spoken: IntRange?, focus: Int? = null, onShare: (List<Int>?) -> Unit = {}) {
     val scheme = MaterialTheme.colorScheme
     val paras = c.paragraphs(page)
     // Where each paragraph starts in the page's text as read aloud (paragraphs joined by line breaks)
@@ -239,7 +246,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         // The text can be selected, copied, and shared as a quote with where it is from
         val view = LocalView.current
-        val menu = remember(page, lang, res) { SelectionMenu(view, c, page, lang, res) }
+        val menu = remember(page, lang, res) { SelectionMenu(view, c, page) { onShare(it) } }
         CompositionLocalProvider(LocalTextToolbar provides menu) {
         SelectionContainer {
             LazyColumn(

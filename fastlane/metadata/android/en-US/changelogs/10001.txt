@@ -1,0 +1,1 @@
+Osnova 1.0.1: text selected in an article can be shared as a quote — "Share" in the menu over the selection opens the quote with its parts already chosen.

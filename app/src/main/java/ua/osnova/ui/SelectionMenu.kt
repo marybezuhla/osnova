@@ -1,8 +1,6 @@
 package ua.osnova.ui
 
 import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
@@ -16,16 +14,15 @@ import ua.osnova.text.Page
 import ua.osnova.text.Quote
 
 /**
- * The menu over text selected in an article: "Copy", "Share" and "Select all". "Share" sends what is selected
- * as a quote, with where it is from ("Частина друга статті 43 Конституції України"), as the share sheet does.
+ * The menu over text selected in an article: "Copy", "Share" and "Select all". "Share" opens the quote's sheet
+ * with the parts the selection is in already chosen, so the quote is cited by its parts.
  */
 class SelectionMenu(
     private val view: View,
     private val c: Constitution,
     private val page: Page,
-    private val lang: String,
-    /** The text language's resources: its quotation marks */
-    private val res: android.content.res.Resources,
+    /** The indexes of the parts chosen (in [Quote.pieces]), or null for the whole page */
+    private val onShare: (List<Int>?) -> Unit,
 ) : TextToolbar {
     private var mode: ActionMode? = null
     private var rect = Rect.Zero
@@ -108,9 +105,10 @@ class SelectionMenu(
         try {
             if (before != null) clipboard.setPrimaryClip(before) else clipboard.clearPrimaryClip()
         } catch (_: Exception) { /* the share still goes */ }
-        val (lines, chosen) = Quote.selected(c, page, selection ?: return) ?: return
-        val quote = Quote.text(lines, res.getString(R.string.quote_open), res.getString(R.string.quote_close), Quote.source(page, chosen, lang))
-        send(context, quote)
+        // Nothing of the page's own words selected (only its heading): the whole page
+        val chosen = selection?.let { Quote.selected(c, page, it) }?.second
+        val all = Quote.pieces(c, page)
+        onShare(chosen?.map { p -> all.indexOfFirst { it.number == p.number } }?.filter { it >= 0 })
     }
 
     private companion object {
@@ -118,10 +116,4 @@ class SelectionMenu(
         const val SHARE = 2
         const val SELECT_ALL = 3
     }
-}
-
-/** A quote to the app chosen. */
-fun send(context: Context, quote: String) {
-    val intent = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, quote)
-    runCatching { context.startActivity(Intent.createChooser(intent, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }
