@@ -5,7 +5,7 @@ Osnova is the Constitution of Ukraine on your phone: the full text of the curren
 • Search in both languages, with word forms; an article number opens the article at once.
 • Bookmarks and "Continue reading" from where you stopped.
 • Switch the language of the text on any article without losing your place.
-• Light and dark themes (Poppy, Viburnum, Starry night and more), or the phone's colours.
+• Light and dark themes (Poppy, Viburnum, Starry night and more), or the phone's colours (Android 12+).
 
 No internet, ads, accounts or tracking. Its permissions are only there to read aloud with the screen off.
 

@@ -101,6 +101,8 @@ class SearchTest {
         assertEquals("XII", Search.chapter(uk, "розділ ХІІ")?.num)
         assertEquals("II", Search.chapter(uk, "розд. II")?.num)
         assertEquals("VIII", Search.chapter(uk, "правосуддя")?.num)
+        assertEquals("I", Search.chapter(uk, "загальні засади")?.num)
+        assertEquals("III", Search.chapter(uk, "вибори референдум")?.num)
         for (q in listOf("права", "право", "конституції", "верховної")) assertNull(q, Search.chapter(uk, q))
         assertNull(Search.chapter(en, "constitution"))
         assertTrue(Search.find(uk, "розділ XV").isEmpty())

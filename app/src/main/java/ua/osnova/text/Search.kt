@@ -96,7 +96,7 @@ object Search {
         // Every word of the title is asked for, by most of it: "перехідні положення", "правосуддя", but not "права"
         return c.chapters.firstOrNull { ch ->
             WORD.findAll(normalize(ch.title)).map { it.value.replace("'", "") }.filter { it.length > 3 && it !in COMMON }
-                .toList().let { words -> words.isNotEmpty() && words.all { w -> stems.any { s -> w.startsWith(s) && s.length * 10 >= w.length * 7 } } }
+                .toList().let { words -> words.isNotEmpty() && words.all { w -> stems.any { s -> w.startsWith(s) && s.length * 100 >= w.length * 65 } } }
         }
     }
 

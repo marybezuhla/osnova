@@ -63,7 +63,8 @@ class ReadAloudService : Service() {
         scope.launch {
             ReadAloud.state.map { it.active to it.playing }.distinctUntilChanged().collect { (active, playing) ->
                 if (!active) { stopSelf(); return@collect }
-                if (playing) takeFocus() else dropFocus()
+                // Paused by a call or an alarm, the focus is kept: Android gives it back when they end, and reading goes on
+                if (playing) { pausedForAWhile = false; takeFocus() } else if (!pausedForAWhile) dropFocus()
                 session.setPlaybackState(PlaybackState.Builder()
                     .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE or PlaybackState.ACTION_PLAY_PAUSE or
                         PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS or PlaybackState.ACTION_STOP)

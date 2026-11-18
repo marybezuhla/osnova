@@ -17,7 +17,7 @@
     <string name="read_no_voice_short">No voice to read with: open Osnova</string>
     <string name="read_get_own_voice">Osnova\'s voices</string>
     <string name="read_get_phone_voice">Phone\'s voices</string>
-    <string name="read_voice_incomplete">The file is not complete (the download was cut short): download it again.</string>
+    <string name="read_voice_incomplete">The file is shorter than the voice: the download was cut short, or it is another file. Download it again.</string>
     <string name="bookmark_remove">Remove bookmark</string>
     <string name="bookmark_removed">Bookmark removed: %1$s</string>
     <string name="undo">Undo</string>

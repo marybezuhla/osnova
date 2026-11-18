@@ -17,7 +17,7 @@
     <string name="read_no_voice_short">Немає голосу для читання: відкрийте Основу</string>
     <string name="read_get_own_voice">Голоси Основи</string>
     <string name="read_get_phone_voice">Голоси телефона</string>
-    <string name="read_voice_incomplete">Файл завантажено не повністю (завантаження обірвалося): завантажте його знову.</string>
+    <string name="read_voice_incomplete">Файл менший за голос: завантаження обірвалося, або це інший файл. Завантажте його знову.</string>
     <string name="bookmark_remove">Прибрати закладку</string>
     <string name="bookmark_removed">Закладку прибрано: %1$s</string>
     <string name="undo">Повернути</string>
