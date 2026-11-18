@@ -259,7 +259,8 @@ object ReadAloud {
                 val (spot, sound) = next.getOrNull() ?: break
                 _state.update { it.copy(unit = spot.unit, start = spot.start, end = spot.end, preparing = false) }
                 // No voice for it: reading stops here (the place kept), saying why, instead of running on in silence
-                if (sound === NO_VOICE) { withContext(Dispatchers.Main) { pause() }; return@coroutineScope }
+                // (a short low tone, so it is heard with the screen off too)
+                if (sound === NO_VOICE) { stopTone(); withContext(Dispatchers.Main) { pause() }; return@coroutineScope }
                 if (sound != null) { out.play(sound); out.silence(if (spot.last) 0.55f else 0.28f) }
             }
             out.drain()
@@ -276,6 +277,12 @@ object ReadAloud {
 
     /** Marks a sentence no voice could say (reading stops there). */
     private val NO_VOICE = Sound(FloatArray(0), TetianaVoice.RATE)
+
+    /** Two short low tones: reading has stopped for want of a voice. */
+    private suspend fun stopTone() = try {
+        val tone = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 50)
+        try { tone.startTone(android.media.ToneGenerator.TONE_PROP_NACK, 500); delay(600) } finally { tone.release() }
+    } catch (e: CancellationException) { throw e } catch (_: Exception) { /* no tone, the notice still shows */ }
 
     /** A sentence made into sound by the voice for its language (the person's choice first). */
     private suspend fun make(text: String): Sound? {

@@ -27,8 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 
 /** Material colours from one of the themes; the phone's own (Material You) for the system ones. */
 fun colorScheme(theme: Theme, context: Context): ColorScheme {
+    // The phone's own colours exist from Android 12; before it, the default pair stands in for them
     val p = theme.palette
-        ?: return if (theme.dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        ?: if (android.os.Build.VERSION.SDK_INT >= 31) return if (theme.dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        else (if (theme.dark) Theme.ZORIANA_NICH else Theme.NEBO).palette!!
     fun c(v: Long) = Color(v)
     val base = if (theme.dark) darkColorScheme() else lightColorScheme()
     return base.copy(

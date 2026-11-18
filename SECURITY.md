@@ -15,4 +15,4 @@ Please do not report a vulnerability in public issues. Use a private report: **S
 
 Лише остання версія. · Only the latest version.
 
-Потрібен **Android 12** або новіший: старші версії вже не отримують оновлень безпеки, а всі застосунки авторки мають однакову нижню межу. · Requires **Android 12** or newer: older versions no longer get security updates, and all of the author's apps share the same lowest version.
+Потрібен **Android 8** або новіший, щоб Основу можна було встановити й на старі шкільні планшети та телефони. На старих версіях Android, які вже не отримують оновлень безпеки, слабший захист самого телефона; Основа ж не має доступу до інтернету, а від інших застосунків приймає лише вибраний вами файл голосу, і то тільки точний (за розміром і SHA-256). · Requires **Android 8** or newer, so that Osnova also installs on old school tablets and phones. On old Android versions that no longer get security updates the phone itself is less protected; Osnova has no internet access, and from other apps it takes only a voice file you pick, and only the exact one (by size and SHA-256).

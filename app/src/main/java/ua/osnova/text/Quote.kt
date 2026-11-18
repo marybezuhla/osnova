@@ -34,6 +34,9 @@ object Quote {
     /** What comes before the source on its own line. */
     const val SOURCE_MARK = "— "
 
+    /** The clipboard's name for a quote from Osnova, the same in every language: "Erase all data" looks for it. */
+    const val CLIP_LABEL = "Osnova"
+
     /** Where parts were left out between the parts chosen. */
     const val GAP = "[…]"
 

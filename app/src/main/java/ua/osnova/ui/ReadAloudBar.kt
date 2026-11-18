@@ -56,8 +56,11 @@ internal fun speedLabel(s: Float) = java.text.NumberFormat.getInstance(java.util
  */
 @Composable
 internal fun ReadAloudBar(state: ReadAloud.State, onSettings: () -> Unit) {
-    // A notice (no voice for a language) is said for a few seconds
-    LaunchedEffect(state.notice) { if (state.notice != null) { delay(6000); ReadAloud.clearNotice() } }
+    // A notice that only tells (the phone's voice reads for now) goes after a few seconds; one that says why
+    // nothing is read stays until reading starts again
+    LaunchedEffect(state.notice) {
+        if (state.notice == ReadAloud.NOTICE_NOT_DOWNLOADED || state.notice == ReadAloud.NOTICE_OWN_FAILED) { delay(6000); ReadAloud.clearNotice() }
+    }
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 3.dp, shadowElevation = 8.dp,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
@@ -76,6 +79,18 @@ internal fun ReadAloudBar(state: ReadAloud.State, onSettings: () -> Unit) {
                 stringResource(notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
             )
+            // No voice to read with: the two ways to get one, right here
+            if (state.notice == ReadAloud.NOTICE_NO_VOICE || state.notice == ReadAloud.NOTICE_NO_LANGUAGE || state.notice == ReadAloud.NOTICE_NOT_DOWNLOADED_NO_PHONE) {
+                val context = androidx.compose.ui.platform.LocalContext.current
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = onSettings, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.read_get_own_voice)) }
+                    TextButton(onClick = {
+                        // Android's "Text-to-speech" settings, where the phone's voices are added; not every phone has them
+                        runCatching { context.startActivity(android.content.Intent("com.android.settings.TTS_SETTINGS").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                            .recoverCatching { context.startActivity(android.content.Intent(android.speech.tts.TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.read_get_phone_voice)) }
+                }
+            }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 val speedSays = stringResource(R.string.read_speed, speedLabel(state.speed))
                 TextButton(onClick = onSettings, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = speedSays }) { Text(speedLabel(state.speed) + "×", maxLines = 1) }

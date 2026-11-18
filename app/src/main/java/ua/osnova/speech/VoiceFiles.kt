@@ -47,7 +47,7 @@ object VoiceFiles {
 
     /** While a file is being copied in: 0..1; and how the last copy ended. */
     data class Status(val progress: Float? = null, val error: Error? = null, val done: Int = 0)
-    enum class Error { WRONG_FILE, NO_SPACE, FAILED, NOT_RESTORED }
+    enum class Error { WRONG_FILE, INCOMPLETE, NO_SPACE, FAILED, NOT_RESTORED }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val statuses = Voice.entries.associateWith { MutableStateFlow(Status()) }
@@ -117,6 +117,8 @@ object VoiceFiles {
                 }
             }
             val sum = md.digest().joinToString("") { "%02x".format(it) }
+            // Cut short by a weak connection: the start of the right file
+            if (total < v.bytes) return Error.INCOMPLETE
             if (total != v.bytes || sum != v.sha256) return Error.WRONG_FILE
             val target = File(dir, v.file)
             target.delete()

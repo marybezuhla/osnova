@@ -33,7 +33,7 @@ android {
 
     defaultConfig {
         applicationId = "ua.osnova"
-        minSdk = 31
+        minSdk = 26
         targetSdk = 36
         versionCode = appVersionCode
         versionName = appVersion

@@ -12,7 +12,12 @@
     <string name="tab_contents">Contents</string>
     <string name="tab_bookmarks">Bookmarks</string>
     <string name="bookmarks_empty">No bookmarks yet. Tap the bookmark at the top of an article to keep it here.</string>
-    <string name="bookmark_add">Add bookmark</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="read_voice_share">Share file</string>
+    <string name="read_no_voice_short">No voice to read with: open Osnova</string>
+    <string name="read_get_own_voice">Osnova\'s voices</string>
+    <string name="read_get_phone_voice">Phone\'s voices</string>
+    <string name="read_voice_incomplete">The file is shorter than the voice: the download was cut short, or it is another file. Download it again.</string>
     <string name="bookmark_remove">Remove bookmark</string>
     <string name="bookmark_removed">Bookmark removed: %1$s</string>
     <string name="undo">Undo</string>
@@ -46,11 +51,10 @@
     <string name="share_send">Share</string>
     <string name="quote_open">“</string>
     <string name="quote_close">”</string>
-    <string name="quote_constitution">Constitution of Ukraine</string>
     <string name="loading">Opening the Constitution…</string>
-    <string name="app_language">Language</string>
+    <string name="app_language">App language</string>
     <string name="lang_auto">Same as the phone</string>
-    <string name="search_found">%1$s paragraphs found</string>
+    <string name="search_found">Paragraphs found: %1$s</string>
     <string name="label_for" translatable="false">%1$s: %2$s</string>
     <string name="read_no_sound">Could not play the sound, so reading stopped. Try again.</string>
     <string name="read_own_failed">Osnova\'s voice could not start (most often because memory is low), so the phone\'s voice reads for now.</string>
@@ -139,7 +143,7 @@
     <string name="read_not_downloaded">Osnova\'s voice is not downloaded yet, so the phone\'s voice reads for now. Download it in “Voice”.</string>
     <string name="read_not_downloaded_no_phone">Osnova\'s voice is not downloaded yet, and the phone has no such voice either. Download it in “Voice”.</string>
     <string name="read_voices">Osnova\'s voices</string>
-    <string name="read_voices_how">Each voice is downloaded once. “Download” opens the file in your browser (from GitHub or Hugging Face; those sites see the phone\'s IP address). Then “Pick the file” copies it into Osnova: only the exact voice file is accepted. Afterwards the file in Downloads can be deleted.</string>
+    <string name="read_voices_how">Each voice is downloaded once. “Download” opens the file in your browser (from GitHub or Hugging Face; those sites see the phone\'s IP address). Then “Pick the file” copies it into Osnova: only the exact voice file is accepted. Afterwards the file in Downloads can be deleted. No internet? Someone who has the voice can send you the file (“Share file”): pick it the same way.</string>
     <string name="read_voice_uk">Ukrainian: Tetiana (152 MB)</string>
     <string name="read_voice_en">English: Cori (64 MB)</string>
     <string name="read_voice_ready">Downloaded</string>

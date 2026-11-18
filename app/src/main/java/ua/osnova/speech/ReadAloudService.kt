@@ -36,6 +36,7 @@ class ReadAloudService : Service() {
     private lateinit var session: MediaSession
     private lateinit var audio: AudioManager
     private var focus: AudioFocusRequest? = null
+    private var pausedForAWhile = false
     private var foreground = false
 
     private val noisy = object : BroadcastReceiver() {
@@ -62,7 +63,8 @@ class ReadAloudService : Service() {
         scope.launch {
             ReadAloud.state.map { it.active to it.playing }.distinctUntilChanged().collect { (active, playing) ->
                 if (!active) { stopSelf(); return@collect }
-                if (playing) takeFocus() else dropFocus()
+                // Paused by a call or an alarm, the focus is kept: Android gives it back when they end, and reading goes on
+                if (playing) { pausedForAWhile = false; takeFocus() } else if (!pausedForAWhile) dropFocus()
                 session.setPlaybackState(PlaybackState.Builder()
                     .setActions(PlaybackState.ACTION_PLAY or PlaybackState.ACTION_PAUSE or PlaybackState.ACTION_PLAY_PAUSE or
                         PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS or PlaybackState.ACTION_STOP)
@@ -77,7 +79,12 @@ class ReadAloudService : Service() {
     }
 
     private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
-        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) ReadAloud.pause()
+        when (change) {
+            AudioManager.AUDIOFOCUS_LOSS -> { pausedForAWhile = false; ReadAloud.pause() }
+            // A call or an alarm: reading goes on after it, if it was going before
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> if (ReadAloud.state.value.playing) { pausedForAWhile = true; ReadAloud.pause() }
+            AudioManager.AUDIOFOCUS_GAIN -> if (pausedForAWhile) { pausedForAWhile = false; ReadAloud.resume() }
+        }
     }
 
     private fun takeFocus() {
@@ -97,11 +104,16 @@ class ReadAloudService : Service() {
         // On the lock screen, without what is being read
         val public = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_read_aloud)
             .setContentTitle(getString(R.string.read_aloud)).setContentText(getString(R.string.app_name)).build()
+        // Stopped for want of a voice: said here too, for whoever listens with the screen off (nothing of the text)
+        val why = when (ReadAloud.state.value.notice) {
+            ReadAloud.NOTICE_NO_VOICE, ReadAloud.NOTICE_NO_LANGUAGE, ReadAloud.NOTICE_NOT_DOWNLOADED_NO_PHONE -> getString(R.string.read_no_voice_short)
+            else -> getString(R.string.app_name)
+        }
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_read_aloud)
             // The same as on the lock screen: what is read shows only in Osnova itself
             .setContentTitle(getString(R.string.read_aloud))
-            .setContentText(getString(R.string.app_name))
+            .setContentText(why)
             .setContentIntent(open)
             .setOngoing(playing)
             .setShowWhen(false)
@@ -116,7 +128,10 @@ class ReadAloudService : Service() {
             .build()
         if (!foreground) {
             // Android may refuse it from the background (resumed later): then the controls are only shown
-            foreground = try { startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK); true } catch (e: Exception) { getSystemService(NotificationManager::class.java).notify(ID, n); false }
+            foreground = try {
+                if (android.os.Build.VERSION.SDK_INT >= 29) startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK) else startForeground(ID, n)
+                true
+            } catch (e: Exception) { getSystemService(NotificationManager::class.java).notify(ID, n); false }
         } else getSystemService(NotificationManager::class.java).notify(ID, n)
         // Paused, the controls stay (and Osnova with them) until reading ends; long paused, reading ends by itself
     }

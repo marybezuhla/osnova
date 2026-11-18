@@ -12,7 +12,12 @@
     <string name="tab_contents">Зміст</string>
     <string name="tab_bookmarks">Закладки</string>
     <string name="bookmarks_empty">Закладок ще немає. Натисніть закладку вгорі статті, щоб вона зʼявилася тут.</string>
-    <string name="bookmark_add">Додати закладку</string>
+    <string name="bookmark">Закладка</string>
+    <string name="read_voice_share">Поділитися файлом</string>
+    <string name="read_no_voice_short">Немає голосу для читання: відкрийте Основу</string>
+    <string name="read_get_own_voice">Голоси Основи</string>
+    <string name="read_get_phone_voice">Голоси телефона</string>
+    <string name="read_voice_incomplete">Файл менший за голос: завантаження обірвалося, або це інший файл. Завантажте його знову.</string>
     <string name="bookmark_remove">Прибрати закладку</string>
     <string name="bookmark_removed">Закладку прибрано: %1$s</string>
     <string name="undo">Повернути</string>
@@ -42,9 +47,8 @@
     <string name="share_send">Поділитися</string>
     <string name="quote_open">«</string>
     <string name="quote_close">»</string>
-    <string name="quote_constitution">Конституція України</string>
     <string name="loading">Відкриваю Конституцію…</string>
-    <string name="app_language">Мова</string>
+    <string name="app_language">Мова застосунку</string>
     <string name="lang_auto">Як у телефоні</string>
     <string name="search_found">Знайдено абзаців: %1$s</string>
     <string name="read_no_sound">Не вдалося відтворити звук, тож читання зупинено. Спробуйте ще раз.</string>
@@ -129,7 +133,7 @@
     <string name="read_not_downloaded">Голос Основи ще не завантажено, тож поки що читає голос телефона. Завантажте його в «Голос».</string>
     <string name="read_not_downloaded_no_phone">Голос Основи ще не завантажено, а на телефоні такого голосу немає. Завантажте його в «Голос».</string>
     <string name="read_voices">Голоси Основи</string>
-    <string name="read_voices_how">Кожен голос завантажується один раз. «Завантажити» відкриває файл у браузері (з GitHub чи Hugging Face; ці сайти бачать IP-адресу телефона). Потім «Вибрати файл» копіює його в Основу: приймається лише точний файл голосу. Після цього файл у «Завантаженнях» можна видалити.</string>
+    <string name="read_voices_how">Кожен голос завантажується один раз. «Завантажити» відкриває файл у браузері (з GitHub чи Hugging Face; ці сайти бачать IP-адресу телефона). Потім «Вибрати файл» копіює його в Основу: приймається лише точний файл голосу. Після цього файл у «Завантаженнях» можна видалити. Немає інтернету? Хтось, у кого голос є, може надіслати вам файл («Поділитися файлом»): виберіть його так само.</string>
     <string name="read_voice_uk">Український: Тетяна (152 МБ)</string>
     <string name="read_voice_en">Англійський: Cori (64 МБ)</string>
     <string name="read_voice_ready">Завантажено</string>

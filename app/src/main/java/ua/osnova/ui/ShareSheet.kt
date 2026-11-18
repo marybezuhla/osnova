@@ -149,7 +149,7 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                     // A plain quote from a public text: nothing private in the clipboard
                     runCatching {
                         context.getSystemService(ClipboardManager::class.java)
-                            .setPrimaryClip(ClipData.newPlainText(res.getString(R.string.quote_constitution), quote))
+                            .setPrimaryClip(ClipData.newPlainText(Quote.CLIP_LABEL, quote))
                         copied = true
                     }
                 },

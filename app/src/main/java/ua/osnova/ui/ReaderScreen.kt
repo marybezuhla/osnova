@@ -141,7 +141,8 @@ fun ReaderScreen(
                 IconToggleButton(checked = marked, onCheckedChange = { onToggleBookmark(current.key) }) {
                     Icon(
                         painterResource(if (marked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_add),
-                        contentDescription = stringResource(if (marked) R.string.bookmark_remove else R.string.bookmark_add),
+                        // The toggle itself says whether it is on
+                        contentDescription = stringResource(R.string.bookmark),
                         tint = if (marked) scheme.secondary else scheme.onSurfaceVariant,
                     )
                 }
@@ -221,7 +222,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
     // (the items before the paragraphs: the heading, and an article's chapter)
     val before = if (page is Page.Of) 2 else 1
     // Opened at a paragraph found by a search: it is at the top, just under the page's name
-    val list = rememberLazyListState(initialFirstVisibleItemIndex = focus?.takeIf { it in paras.indices && it > 0 }?.let { it + before - 1 } ?: 0)
+    val list = rememberLazyListState(initialFirstVisibleItemIndex = focus?.takeIf { it in paras.indices && it > 0 }?.let { it + before } ?: 0)
     val spokenParagraph = paras.indices.firstOrNull { spokenIn(it) != null }
     // The sentence read aloud stays in sight
     LaunchedEffect(spokenParagraph) {
