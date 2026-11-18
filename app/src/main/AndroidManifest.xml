@@ -47,6 +47,18 @@
                 tools:node="remove" />
         </provider>
 
+        <!-- "Share the voice's file": hands one voice file to the app chosen (Bluetooth, Quick Share, a messenger),
+             for someone without internet. Not open to other apps: each file is lent by Osnova, read-only, when shared. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.voices"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/voice_files" />
+        </provider>
+
         <!-- Reading aloud with the screen off: the controls on the lock screen and in the notifications -->
         <service
             android:name=".speech.ReadAloudService"

@@ -95,6 +95,12 @@ private fun VoiceRow(voice: VoiceFiles.Voice, title: Int) {
                         onClick = { ReadAloud.stop(); ReadAloud.release(); VoiceFiles.delete(context, voice) },
                         modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = del },
                     ) { Text(stringResource(R.string.read_voice_delete)) }
+                    // To someone without internet: the same file, checked again when they pick it
+                    val share = stringResource(R.string.label_for, stringResource(R.string.read_voice_share), name)
+                    TextButton(
+                        onClick = { shareVoice(context, voice) },
+                        modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = share },
+                    ) { Text(stringResource(R.string.read_voice_share)) }
                 } else if (deleted) {
                     val undo = stringResource(R.string.label_for, stringResource(R.string.undo), name)
                     OutlinedButton(onClick = { VoiceFiles.restore(context, voice) }, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = undo }) {
@@ -114,5 +120,16 @@ private fun VoiceRow(voice: VoiceFiles.Voice, title: Int) {
                 }
             }
         }
+    }
+}
+
+/** The voice's file to the app chosen (Bluetooth, Quick Share, a messenger), lent read-only for that one sending. */
+private fun shareVoice(context: android.content.Context, voice: VoiceFiles.Voice) {
+    val file = VoiceFiles.file(context, voice) ?: return
+    runCatching {
+        val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".voices", file, voice.downloadName)
+        val send = Intent(Intent.ACTION_SEND).setType("application/octet-stream").putExtra(Intent.EXTRA_STREAM, uri)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        context.startActivity(Intent.createChooser(send, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 }

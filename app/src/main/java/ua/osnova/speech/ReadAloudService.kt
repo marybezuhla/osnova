@@ -103,11 +103,16 @@ class ReadAloudService : Service() {
         // On the lock screen, without what is being read
         val public = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_read_aloud)
             .setContentTitle(getString(R.string.read_aloud)).setContentText(getString(R.string.app_name)).build()
+        // Stopped for want of a voice: said here too, for whoever listens with the screen off (nothing of the text)
+        val why = when (ReadAloud.state.value.notice) {
+            ReadAloud.NOTICE_NO_VOICE, ReadAloud.NOTICE_NO_LANGUAGE, ReadAloud.NOTICE_NOT_DOWNLOADED_NO_PHONE -> getString(R.string.read_no_voice_short)
+            else -> getString(R.string.app_name)
+        }
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_read_aloud)
             // The same as on the lock screen: what is read shows only in Osnova itself
             .setContentTitle(getString(R.string.read_aloud))
-            .setContentText(getString(R.string.app_name))
+            .setContentText(why)
             .setContentIntent(open)
             .setOngoing(playing)
             .setShowWhen(false)
@@ -122,7 +127,10 @@ class ReadAloudService : Service() {
             .build()
         if (!foreground) {
             // Android may refuse it from the background (resumed later): then the controls are only shown
-            foreground = try { startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK); true } catch (e: Exception) { getSystemService(NotificationManager::class.java).notify(ID, n); false }
+            foreground = try {
+                if (android.os.Build.VERSION.SDK_INT >= 29) startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK) else startForeground(ID, n)
+                true
+            } catch (e: Exception) { getSystemService(NotificationManager::class.java).notify(ID, n); false }
         } else getSystemService(NotificationManager::class.java).notify(ID, n)
         // Paused, the controls stay (and Osnova with them) until reading ends; long paused, reading ends by itself
     }

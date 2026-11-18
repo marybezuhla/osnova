@@ -211,7 +211,8 @@ private fun ThemeRow(themes: List<Theme>, chosen: Theme, onChoose: (Theme) -> Un
             Modifier.fillMaxWidth().selectableGroup().padding(vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            for (row in themes.chunked(3)) {
+            // The phone's own colours only where the phone has them (Android 12 and newer)
+            for (row in themes.filter { it.palette != null || android.os.Build.VERSION.SDK_INT >= 31 }.chunked(3)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
                     for (theme in row) {
                         val selected = theme == chosen

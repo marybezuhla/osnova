@@ -79,6 +79,18 @@ internal fun ReadAloudBar(state: ReadAloud.State, onSettings: () -> Unit) {
                 stringResource(notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).semantics { liveRegion = LiveRegionMode.Polite },
             )
+            // No voice to read with: the two ways to get one, right here
+            if (state.notice == ReadAloud.NOTICE_NO_VOICE || state.notice == ReadAloud.NOTICE_NO_LANGUAGE || state.notice == ReadAloud.NOTICE_NOT_DOWNLOADED_NO_PHONE) {
+                val context = androidx.compose.ui.platform.LocalContext.current
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = onSettings, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.read_get_own_voice)) }
+                    TextButton(onClick = {
+                        // Android's "Text-to-speech" settings, where the phone's voices are added; not every phone has them
+                        runCatching { context.startActivity(android.content.Intent("com.android.settings.TTS_SETTINGS").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                            .recoverCatching { context.startActivity(android.content.Intent(android.speech.tts.TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.read_get_phone_voice)) }
+                }
+            }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 val speedSays = stringResource(R.string.read_speed, speedLabel(state.speed))
                 TextButton(onClick = onSettings, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = speedSays }) { Text(speedLabel(state.speed) + "×", maxLines = 1) }

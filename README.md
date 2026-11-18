@@ -20,7 +20,7 @@
 
 Основа не має доступу до інтернету й нічого не збирає: [PRIVACY.md](PRIVACY.md). Голоси для читання вголос займають на телефоні 216 МБ (їх можна не завантажувати: тоді читає голос телефона).
 
-**Встановлення:** завантажте `.apk` з [останнього випуску](../../releases/latest) на телефоні й відкрийте його. Android один раз попросить дозволити браузеру встановлювати застосунки. Потрібен Android 12 або новіший на 64-бітному процесорі ARM (arm64), як майже в усіх телефонах.
+**Встановлення:** завантажте `.apk` з [останнього випуску](../../releases/latest) на телефоні й відкрийте його. Android один раз попросить дозволити браузеру встановлювати застосунки. Потрібен Android 8 або новіший на 64-бітному процесорі ARM (arm64), як майже в усіх телефонах.
 
 **Перевірка файлу:** відбиток ключа підпису SHA-256
 
@@ -45,7 +45,7 @@ The Constitution of Ukraine on your phone: the full text of the current edition 
 
 Osnova has no access to the internet and collects nothing: [PRIVACY.md](PRIVACY.md). The voices for reading aloud take 216 MB on the phone (you can do without them: then the phone's own voice reads).
 
-**Install:** download the `.apk` from the [latest release](../../releases/latest) on your phone and open it. Android asks once to let the browser install apps. Requires Android 12 or newer on a 64-bit ARM processor (arm64), as almost every phone has.
+**Install:** download the `.apk` from the [latest release](../../releases/latest) on your phone and open it. Android asks once to let the browser install apps. Requires Android 8 or newer on a 64-bit ARM processor (arm64), as almost every phone has.
 
 **Check the file:** `apksigner verify --print-certs osnova-<version>.apk`; the line `Signer #1 certificate SHA-256 digest` must match the fingerprint above.
 

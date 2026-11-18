@@ -15,4 +15,4 @@ Please do not report a vulnerability in public issues. Use a private report: **S
 
 Лише остання версія. · Only the latest version.
 
-Потрібен **Android 12** або новіший: старші версії вже не отримують оновлень безпеки, а всі застосунки авторки мають однакову нижню межу. · Requires **Android 12** or newer: older versions no longer get security updates, and all of the author's apps share the same lowest version.
+Потрібен **Android 8** або новіший, щоб Основу можна було встановити й на старі шкільні планшети та телефони. Версії, старші за Android 12, уже не отримують оновлень безпеки, тож на них слабший захист самого телефона; Основа ж не має доступу до інтернету й не приймає нічого від інших застосунків. · Requires **Android 8** or newer, so that Osnova also installs on old school tablets and phones. Versions older than Android 12 no longer get security updates, so the phone itself is less protected; Osnova has no internet access and takes nothing in from other apps.
