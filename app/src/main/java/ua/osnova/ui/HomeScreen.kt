@@ -37,11 +37,8 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -280,14 +277,16 @@ private fun LazyListScope.results(
             }
         }
     }
-    // How many were found (or that none were), said by TalkBack as the query changes
-    item {
+    // How many were found (or that none were), said by TalkBack as the query changes; nothing to say when
+    // the article asked for by its number is all there is
+    if (hits.isNotEmpty() || jump == null) item {
+        val count = if (hits.size >= Search.MAX_HITS) "${Search.MAX_HITS}+" else hits.size.toString()
         Text(
-            if (hits.isEmpty() && jump == null) stringResource(R.string.search_none) else stringResource(R.string.search_found, hits.size),
+            if (hits.isEmpty()) stringResource(R.string.search_none) else stringResource(R.string.search_found, count),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(vertical = if (hits.isEmpty() && jump == null) 24.dp else 0.dp)
+            modifier = Modifier.fillMaxWidth().padding(vertical = if (hits.isEmpty()) 24.dp else 0.dp)
                 .semantics { liveRegion = LiveRegionMode.Polite },
         )
     }
@@ -297,14 +296,8 @@ private fun LazyListScope.results(
         Tile({ onOpen(page.key) }) {
             Column {
                 Text(pageTitle(res, page, lang), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                Text(marked(hit.excerpt, hit.marks, mark), style = MaterialTheme.typography.bodyMedium.copy(localeList = LocaleList(lang)))
+                Text(inLanguage(hit.excerpt, lang, hit.marks, mark), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
-}
-
-/** The excerpt with the words found shaded. */
-private fun marked(text: String, marks: List<IntRange>, style: SpanStyle): AnnotatedString = buildAnnotatedString {
-    append(text)
-    for (m in marks) addStyle(style, m.first, m.last + 1)
 }

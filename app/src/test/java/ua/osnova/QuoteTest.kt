@@ -22,10 +22,10 @@ class QuoteTest {
         val p150 = Quote.pieces(uk, uk.article("150")!!)
         assertEquals(listOf("1", "2"), p150.map { it.number })
         assertEquals(8..8, p150[1].paragraphs)
-        // An oath in quotation marks belongs to the part that brings it in (articles 79 and 104)
-        assertEquals(4, Quote.pieces(uk, uk.article("79")!!).size)
-        assertEquals(0..2, Quote.pieces(uk, uk.article("79")!!)[0].paragraphs)
-        assertEquals(4, Quote.pieces(en, en.article("104")!!).size)
+        // Each line of an oath is a part, as the Constitutional Court cites them ("частина третя статті 79")
+        assertEquals(6, Quote.pieces(uk, uk.article("79")!!).size)
+        assertEquals(2..2, Quote.pieces(uk, uk.article("79")!!)[2].paragraphs)
+        assertEquals(5, Quote.pieces(en, en.article("104")!!).size)
     }
 
     @Test fun piecesCoverThePageOnce() {

@@ -60,7 +60,7 @@ class ReadAloudService : Service() {
         )
         androidx.core.content.ContextCompat.registerReceiver(this, noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
         scope.launch {
-            ReadAloud.state.map { Triple(it.active, it.playing, it.title) }.distinctUntilChanged().collect { (active, playing, title) ->
+            ReadAloud.state.map { it.active to it.playing }.distinctUntilChanged().collect { (active, playing) ->
                 if (!active) { stopSelf(); return@collect }
                 if (playing) takeFocus() else dropFocus()
                 session.setPlaybackState(PlaybackState.Builder()
@@ -71,7 +71,7 @@ class ReadAloudService : Service() {
                 // (the policy's "other hands, forced to show") does not see what is being listened to
                 session.setMetadata(MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, getString(R.string.read_aloud))
                     .putString(MediaMetadata.METADATA_KEY_ARTIST, getString(R.string.app_name)).build())
-                show(playing, title)
+                show(playing)
             }
         }
     }
@@ -92,15 +92,16 @@ class ReadAloudService : Service() {
     private fun action(code: Int, action: String) =
         PendingIntent.getService(this, code, Intent(this, ReadAloudService::class.java).setAction(action), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-    private fun show(playing: Boolean, title: String) {
+    private fun show(playing: Boolean) {
         val open = packageManager.getLaunchIntentForPackage(packageName)?.let { PendingIntent.getActivity(this, 9, it, PendingIntent.FLAG_IMMUTABLE) }
         // On the lock screen, without what is being read
         val public = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_read_aloud)
             .setContentTitle(getString(R.string.read_aloud)).setContentText(getString(R.string.app_name)).build()
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_read_aloud)
-            .setContentTitle(title)
-            .setContentText(getString(R.string.read_aloud))
+            // The same as on the lock screen: what is read shows only in Osnova itself
+            .setContentTitle(getString(R.string.read_aloud))
+            .setContentText(getString(R.string.app_name))
             .setContentIntent(open)
             .setOngoing(playing)
             .setShowWhen(false)
@@ -129,7 +130,7 @@ class ReadAloudService : Service() {
         }
         // In the foreground at once, every time it is started (Android asks for it within seconds, even when
         // reading has already ended by now); then it goes if there is nothing to read
-        if (!foreground) show(ReadAloud.state.value.playing, ReadAloud.state.value.title)
+        if (!foreground) show(ReadAloud.state.value.playing)
         if (!ReadAloud.state.value.active) { stopForeground(STOP_FOREGROUND_REMOVE); foreground = false; stopSelf() }
         return START_NOT_STICKY
     }

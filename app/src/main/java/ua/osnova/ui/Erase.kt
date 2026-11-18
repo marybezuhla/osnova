@@ -59,6 +59,10 @@ private fun erase(context: Context) {
     val app = context.applicationContext
     // Nothing reads or holds a voice's file open while it goes
     ReadAloud.stop()
+    // The app's language is kept by Android itself (13 and newer): back to "as on the phone"
+    if (android.os.Build.VERSION.SDK_INT >= 33) {
+        try { app.getSystemService(android.app.LocaleManager::class.java)?.applicationLocales = android.os.LocaleList.getEmptyLocaleList() } catch (_: Exception) { /* the rest still goes */ }
+    }
     // Android erases all of the app's files and settings and closes it
     val done = try {
         app.getSystemService(ActivityManager::class.java)?.clearApplicationUserData() == true

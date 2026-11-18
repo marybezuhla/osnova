@@ -3,6 +3,7 @@ package ua.osnova.ui
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
@@ -70,8 +71,9 @@ class MainActivity : ComponentActivity() {
         last.value = places.last()
         readSpeed.value = places.readSpeed()
         readVoice.value = places.readVoice()
-        // A voice deleted last time and not brought back goes now
-        ua.osnova.speech.VoiceFiles.cleanUp(this)
+        // A voice deleted last time and not brought back goes now (not when the screen is only made anew:
+        // "Undo" may still be on it)
+        if (savedInstanceState == null) ua.osnova.speech.VoiceFiles.forgetDeleted(this)
         // Until chosen, the text is in the app's own language
         textLang.value = places.textLanguage() ?: getString(R.string.text_language_default)
         setContent {
@@ -103,9 +105,12 @@ class MainActivity : ComponentActivity() {
     private fun App(texts: Map<String, Constitution>) {
         var path by rememberSaveable { mutableStateOf(HOME) }
         val steps = path.split(SEP)
-        // A double tap opens one screen, not two on top of each other
-        fun go(step: String) { if (path.split(SEP).last() != step) path = path + SEP + step }
-        fun back() { path.split(SEP).let { if (it.size > 1) path = it.dropLast(1).joinToString(SEP) } }
+        // One step at a time: a double tap, or a tap on a screen still fading out, does not open (or close)
+        // a second screen
+        var moved by remember { mutableStateOf(0L) }
+        fun settled(): Boolean = (SystemClock.uptimeMillis() - moved > STEP_MS).also { if (it) moved = SystemClock.uptimeMillis() }
+        fun go(step: String) { if (path.split(SEP).last() != step && settled()) path = path + SEP + step }
+        fun back() { path.split(SEP).let { if (it.size > 1 && settled()) path = it.dropLast(1).joinToString(SEP) } }
         BackHandler(enabled = steps.size > 1) { back() }
 
         val lang = textLang.value
@@ -199,6 +204,8 @@ class MainActivity : ComponentActivity() {
         const val ABOUT = "about"
         // Page keys and chapter numbers never contain it
         const val SEP = "|"
+        // A little longer than the fade between screens
+        const val STEP_MS = 300L
     }
 }
 

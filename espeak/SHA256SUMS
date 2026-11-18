@@ -1,5 +1,9 @@
-# SHA-256 of the prebuilt eSpeak NG library and of the reading-aloud files that come with the app, as reviewed
-# in Hramota (eSpeak NG 1.52.0 built from source by its espeak.yml). Paths from the repository's root; CI checks them.
+# SHA-256 of the prebuilt eSpeak NG library with its headers, and of the reading-aloud files that come with the app, as
+# reviewed in Hramota (eSpeak NG 1.52.0 built from source by its espeak.yml). Paths from the repository's root; CI checks them.
+cfdea69c66f1b309717894fa8682e761d7a49448e6a17abdd015bbd85e6de0d5  espeak/include/espeak-ng/encoding.h
+cc4557b73e583bff99ae6703b9685d573713e6c28edecd44030e5def47384051  espeak/include/espeak-ng/espeak_ng.h
+3218ca1573c58f0191830425ca2ebc823f63895de5967b0d1dced987830bfdce  espeak/include/espeak-ng/speak_lib.h
+3218ca1573c58f0191830425ca2ebc823f63895de5967b0d1dced987830bfdce  espeak/include/speak_lib.h
 473f469b3f06cf6e7dd7bd7b6409c8da6bcaf3c37edcbccffef68da43e34276c  espeak/lib/arm64-v8a/libespeak-ng.a
 0eb3aefb154c731cb68359d2902dd8ec0f0f597a717bff89474d9d1d7b980e29  espeak/lib/arm64-v8a/libucd.a
 8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903  app/src/main/assets/voice/LICENSE-espeak-ng.txt

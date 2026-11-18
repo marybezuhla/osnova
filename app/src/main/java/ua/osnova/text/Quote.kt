@@ -38,22 +38,14 @@ object Quote {
     fun body(paragraphs: List<String>, open: String, close: String): String = open + paragraphs.joinToString("\n") + close
 
     /**
-     * The paragraphs that begin a part of an article. Not a new part: a point ("1)", "а)"), a paragraph in small
-     * letters (the lines of a point, as in article 150), or the words of an oath in quotation marks, until the
-     * quotation closes (articles 79 and 104).
+     * The paragraphs that begin a part of an article: each paragraph in capitals that is not a point ("1)", "а)").
+     * A paragraph in small letters is a line of the point before it (article 150). Each line of an oath is a part
+     * of its own, as the Constitutional Court cites them (decision No. 11-рп/2010: "частина третя статті 79").
      */
-    private fun partStarts(paras: List<String>): List<Int> {
-        var quoted = false
-        return paras.indices.filter { i ->
-            val p = paras[i]
-            val starts = !quoted && !POINT_OF_PART.containsMatchIn(p) && p.first().isUpperCase()
-            quoted = quoted != (quotes(p) % 2 == 1)
-            starts
-        }
+    private fun partStarts(paras: List<String>): List<Int> = paras.indices.filter { i ->
+        val p = paras[i]
+        !POINT_OF_PART.containsMatchIn(p) && p.trimStart('"', '“', '«').first().isUpperCase()
     }
-
-    /** Quotation marks in a paragraph: the Ukrainian text uses " for both ends, the English “ and ”. */
-    private fun quotes(p: String) = p.count { it == '"' || it == '“' || it == '”' }
 
     /** The text to send: the quote, then a line with the source. */
     fun text(paragraphs: List<String>, open: String, close: String, source: String): String =

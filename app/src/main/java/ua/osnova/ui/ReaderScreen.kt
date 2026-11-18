@@ -21,7 +21,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,9 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -212,8 +209,6 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
         val b = (r.last + 1 - starts[j]).coerceIn(0, paras[j].length)
         return if (a < b) a..<b else null
     }
-    // TalkBack reads the text in its own language, whatever the app's
-    val locale = LocaleList(lang)
     val list = rememberLazyListState()
     val spokenParagraph = paras.indices.firstOrNull { spokenIn(it) != null }
     // The sentence read aloud stays in sight
@@ -235,8 +230,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 if (page is Page.Of) {
                     item {
                         Text(
-                            chapterName(res, page.chapter.num, page.chapter.title, lang),
-                            style = MaterialTheme.typography.labelLarge.copy(localeList = locale),
+                            inLanguage(chapterName(res, page.chapter.num, page.chapter.title, lang), lang),
+                            style = MaterialTheme.typography.labelLarge,
                             color = scheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
@@ -245,8 +240,8 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 }
                 item {
                     Text(
-                        pageTitle(res, page, lang),
-                        style = MaterialTheme.typography.titleLarge.copy(localeList = locale),
+                        inLanguage(pageTitle(res, page, lang), lang),
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = scheme.onBackground,
                         textAlign = TextAlign.Center,
@@ -256,8 +251,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                 items(paras.size) { j ->
                     val p = paras[j]
                     val on = spokenIn(j)
-                    val text = if (on == null) AnnotatedString(p) else buildAnnotatedString { append(p); addStyle(mark, on.first, on.last + 1) }
-                    Text(text, style = MaterialTheme.typography.bodyLarge.copy(localeList = locale), color = scheme.onBackground)
+                    Text(inLanguage(p, lang, listOfNotNull(on), mark), style = MaterialTheme.typography.bodyLarge, color = scheme.onBackground)
                 }
                 if (isLast) {
                     item {
@@ -279,7 +273,7 @@ private fun PageText(c: Constitution, res: Resources, lang: String, page: Page, 
                             modifier = Modifier.padding(top = 12.dp).semantics { heading() },
                         )
                     }
-                    items(notes) { n -> Text(n, style = MaterialTheme.typography.bodySmall.copy(localeList = locale), color = scheme.onSurfaceVariant) }
+                    items(notes) { n -> Text(inLanguage(n, lang), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant) }
                 }
                 if (lang == "en") {
                     item {
@@ -311,7 +305,6 @@ class ReadingText(private val c: Constitution, private val res: Resources, lang:
 
     val document = ReadAloud.Document(
         id = id,
-        title = res.getString(R.string.quote_constitution),
         count = { c.pages.size },
         text = { i -> head(i) + "\n" + c.paragraphs(c.pages[i]).joinToString("\n") },
         isHeading = { i ->

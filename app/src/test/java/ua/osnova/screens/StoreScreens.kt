@@ -84,7 +84,7 @@ class StoreScreens {
         val res = androidx.compose.ui.platform.LocalContext.current.resources
         val head = ReadingText(c, res, lang()).headLength(i)
         val first = c.paragraphs(c.pages[i]).first()
-        val state = ReadAloud.State(document = "constitution-${lang()}", title = "", playing = true, unit = i, start = head, end = head + first.length)
+        val state = ReadAloud.State(document = "constitution-${lang()}", playing = true, unit = i, start = head, end = head + first.length)
         ReaderScreen(c, lang(), "a:3", marks, onToggleBookmark = {}, onLanguage = {}, onBack = {}, onShown = {}, reading = state)
     }
 

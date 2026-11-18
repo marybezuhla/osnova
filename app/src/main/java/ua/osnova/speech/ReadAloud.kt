@@ -37,7 +37,6 @@ object ReadAloud {
     /** What is read: units (the Constitution's pages) and their text. */
     class Document(
         val id: String,
-        val title: String,
         val count: () -> Int,
         val text: suspend (Int) -> String,
         /** A unit that starts a chapter: «until the end of the chapter» stops before the next one. */
@@ -46,7 +45,6 @@ object ReadAloud {
 
     data class State(
         val document: String? = null,
-        val title: String = "",
         val playing: Boolean = false,
         /** Getting the voice ready (the first time it takes a moment). */
         val preparing: Boolean = false,
@@ -119,7 +117,7 @@ object ReadAloud {
         doc = document
         toldNotDownloaded = false
         toldFailed = false
-        _state.value = State(document.id, document.title, playing = true, unit = unit, start = from, end = from, speed = speed, voice = voice, sleepAt = _state.value.sleepAt)
+        _state.value = State(document.id, playing = true, unit = unit, start = from, end = from, speed = speed, voice = voice, sleepAt = _state.value.sleepAt)
         ReadAloudService.show(app)
         run(unit, from, 0)
     }

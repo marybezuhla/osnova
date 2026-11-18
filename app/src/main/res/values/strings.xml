@@ -53,7 +53,7 @@
     <string name="loading">Opening the Constitution…</string>
     <string name="app_language">Language</string>
     <string name="lang_auto">As on the phone</string>
-    <string name="search_found">Paragraphs found: %1$d</string>
+    <string name="search_found">Paragraphs found: %1$s</string>
     <string name="label_for" translatable="false">%1$s: %2$s</string>
     <string name="read_no_sound">Could not play the sound, so reading stopped. Try again.</string>
     <string name="read_own_failed">Osnova\'s voice could not start (most often for lack of free memory), so the phone\'s voice reads for now.</string>

@@ -20,7 +20,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ua.osnova.R
@@ -45,6 +50,16 @@ fun textResources(lang: String): Resources {
         context.createConfigurationContext(c).resources
     }
 }
+
+/**
+ * Text marked with its language, so TalkBack reads it with that language's voice whatever the app's own
+ * (the mark must be on the text itself: the style's language only shapes the letters).
+ */
+fun inLanguage(text: String, lang: String, marks: List<IntRange> = emptyList(), mark: SpanStyle? = null): AnnotatedString =
+    buildAnnotatedString {
+        withStyle(SpanStyle(localeList = LocaleList(lang))) { append(text) }
+        if (mark != null) for (m in marks) addStyle(mark, m.first, m.last + 1)
+    }
 
 /** A chapter's name: "I. Загальні засади", "XV. Transitional Provisions". */
 fun chapterName(res: Resources, num: String, title: String, lang: String): String =

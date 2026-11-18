@@ -10,7 +10,8 @@ object Search {
     /** One paragraph found: where it is, a piece of it to show, and the words to mark in that piece. */
     class Hit(val page: Int, val paragraph: Int, val excerpt: String, val marks: List<IntRange>)
 
-    private const val MAX_HITS = 200
+    /** At most this many are shown (a search for a common word): "200+". */
+    const val MAX_HITS = 200
     /** A query longer than this (something pasted) is cut: searching stays quick on any phone. */
     private const val MAX_QUERY = 100
     private const val MAX_WORDS = 10

@@ -38,7 +38,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ua.osnova.R
@@ -120,9 +119,9 @@ fun ShareContent(c: Constitution, page: Page, lang: String) {
                 if (source == null) {
                     Text(stringResource(R.string.share_none), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
                 } else {
-                    Text(Quote.body(words, open, close), style = MaterialTheme.typography.bodyMedium.copy(localeList = LocaleList(lang)),
+                    Text(inLanguage(Quote.body(words, open, close), lang), style = MaterialTheme.typography.bodyMedium,
                         color = scheme.onSurface, maxLines = 10, overflow = TextOverflow.Ellipsis)
-                    Text(Quote.SOURCE_MARK + source, style = MaterialTheme.typography.bodyMedium.copy(localeList = LocaleList(lang)),
+                    Text(inLanguage(Quote.SOURCE_MARK + source, lang), style = MaterialTheme.typography.bodyMedium,
                         color = scheme.onSurfaceVariant)
                 }
             }
