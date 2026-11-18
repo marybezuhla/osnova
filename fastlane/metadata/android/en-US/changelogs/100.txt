@@ -1,1 +1,0 @@
-Osnova 0.1.0. Requires Android 12 or newer.

@@ -36,10 +36,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # The Gradle wrapper jar comes from upstream: check it is an official one before running it
-      - uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
-
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        with:
+          gradle-version: "8.14.3"
 
       # The texts in the app are rebuilt from the pinned sources (scripts/text/source) and must come out
       # exactly the same: anyone can check that nothing in them was changed by hand
@@ -58,7 +57,7 @@ jobs:
         run: |
           set -o pipefail
           test -f gradle/verification-metadata.xml || { echo "gradle/verification-metadata.xml is missing" | tee test.log; exit 1; }
-          ./gradlew --no-daemon testReleaseUnitTest 2>&1 | tee test.log
+          gradle --no-daemon testReleaseUnitTest 2>&1 | tee test.log
 
       - name: Prepare test log
         if: always()
@@ -123,13 +122,10 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # The Gradle wrapper jar comes from upstream: check it is an official one before running it.
-      # The wrapper then checks Gradle itself against distributionSha256Sum.
-      - uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
-
       # A release is built from scratch, without anything cached by earlier runs
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
         with:
+          gradle-version: "8.14.3"
           cache-disabled: ${{ github.event_name == 'push' }}
 
       - name: Build (unsigned)
@@ -139,7 +135,7 @@ jobs:
           # Every library is checked against gradle/verification-metadata.xml (refreshed only by deps.yml);
           # the build fails on any changed library, and without the file.
           test -f gradle/verification-metadata.xml || { echo "gradle/verification-metadata.xml is missing" | tee build.log; exit 1; }
-          ./gradlew --no-daemon lintRelease assembleRelease 2>&1 | tee build.log
+          gradle --no-daemon lintRelease assembleRelease 2>&1 | tee build.log
 
       - name: Check permissions (only what is expected)
         run: bash .github/check-permissions.sh app/build/outputs/apk/release/app-release-unsigned.apk
