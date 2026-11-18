@@ -31,12 +31,12 @@ object VoiceFiles {
         val sha256: String,
     ) {
         /**
-         * Tetiana (robinhad/ukrainian-tts v5.0.0, as ONNX, the file Hramota makes): in Osnova's own "voices" release,
-         * which is never deleted.
+         * Tetiana (robinhad/ukrainian-tts v5.0.0, as ONNX, the file Hramota makes): goes out with every release
+         * of Osnova, so the latest one always has her.
          */
         TETIANA(
             "uk-tetiana.onnx", "uk-tetiana.onnx",
-            "https://github.com/marybezuhla/osnova/releases/download/voices/uk-tetiana.onnx",
+            "https://github.com/marybezuhla/osnova/releases/latest/download/uk-tetiana.onnx",
             151_507_141L, "6d76437e89207e973266b7b3911de8f2bab8cef25bbaaeeb40d34f5a0bae8df9",
         ),
 

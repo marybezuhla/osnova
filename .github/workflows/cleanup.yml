@@ -1,13 +1,14 @@
 name: Clean up old runs
 
 # Run by hand (Actions → Clean up old runs → Run workflow) and type ТАК. Deletes every workflow run
-# (with its logs and files) and every deployment record, except those of the latest release.
+# (with its logs and files) and every deployment record, except those of the latest release, and every
+# branch but main, except one with an open pull request or a run still going.
 # Releases and tags stay: those are deleted by hand on the Releases page.
 on:
   workflow_dispatch:
     inputs:
       confirm:
-        description: "Видалити старі запуски? Напишіть ТАК / Delete old runs? Type ТАК"
+        description: "Видалити старі запуски й гілки? Напишіть ТАК / Delete old runs and branches? Type ТАК"
         required: true
         default: "ні"
 
@@ -21,6 +22,8 @@ jobs:
     permissions:
       actions: write
       deployments: write
+      contents: write
+      pull-requests: read
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
@@ -50,4 +53,16 @@ jobs:
             # Only an inactive deployment can be deleted
             gh api -X POST "repos/$REPO/deployments/$id/statuses" -f state=inactive >/dev/null || true
             gh api -X DELETE "repos/$REPO/deployments/$id" >/dev/null && echo "deleted deployment $id"
+          done
+      - name: Delete finished branches
+        run: |
+          set -euo pipefail
+          # Kept: main, a branch with an open pull request, and one a run is still going on (ci-screens,
+          # deps-refresh and deps-metadata are made again by the runs that need them)
+          KEEP="$(printf 'main\n'; gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" --jq '.[].head.ref'
+                  gh api --paginate "repos/$REPO/actions/runs?per_page=100" --jq '.workflow_runs[] | select(.status != "completed") | .head_branch')"
+          gh api --paginate "repos/$REPO/branches?per_page=100" --jq '.[].name' |
+          while read -r b; do
+            grep -qxF -- "$b" <<<"$KEEP" && continue
+            gh api -X DELETE "repos/$REPO/git/refs/heads/$b" >/dev/null && echo "deleted branch $b"
           done
