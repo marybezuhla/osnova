@@ -12,7 +12,8 @@
     <string name="tab_contents">Contents</string>
     <string name="tab_bookmarks">Bookmarks</string>
     <string name="bookmarks_empty">No bookmarks yet. Tap the bookmark at the top of an article to keep it here.</string>
-    <string name="bookmark_add">Add bookmark</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="read_voice_incomplete">The file is not complete (the download was cut short): download it again.</string>
     <string name="bookmark_remove">Remove bookmark</string>
     <string name="bookmark_removed">Bookmark removed: %1$s</string>
     <string name="undo">Undo</string>
@@ -46,11 +47,10 @@
     <string name="share_send">Share</string>
     <string name="quote_open">“</string>
     <string name="quote_close">”</string>
-    <string name="quote_constitution">Constitution of Ukraine</string>
     <string name="loading">Opening the Constitution…</string>
-    <string name="app_language">Language</string>
+    <string name="app_language">App language</string>
     <string name="lang_auto">Same as the phone</string>
-    <string name="search_found">%1$s paragraphs found</string>
+    <string name="search_found">Paragraphs found: %1$s</string>
     <string name="label_for" translatable="false">%1$s: %2$s</string>
     <string name="read_no_sound">Could not play the sound, so reading stopped. Try again.</string>
     <string name="read_own_failed">Osnova\'s voice could not start (most often because memory is low), so the phone\'s voice reads for now.</string>

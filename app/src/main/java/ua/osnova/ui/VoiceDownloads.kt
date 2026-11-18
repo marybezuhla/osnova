@@ -79,6 +79,7 @@ private fun VoiceRow(voice: VoiceFiles.Voice, title: Int) {
                         VoiceFiles.Error.WRONG_FILE -> R.string.read_voice_wrong
                         VoiceFiles.Error.NO_SPACE -> R.string.read_voice_no_space
                         VoiceFiles.Error.FAILED -> R.string.read_voice_failed
+                        VoiceFiles.Error.INCOMPLETE -> R.string.read_voice_incomplete
                         VoiceFiles.Error.NOT_RESTORED -> R.string.read_voice_not_restored
                     },
                 ),

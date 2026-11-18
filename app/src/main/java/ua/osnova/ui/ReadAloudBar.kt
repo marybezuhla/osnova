@@ -56,8 +56,11 @@ internal fun speedLabel(s: Float) = java.text.NumberFormat.getInstance(java.util
  */
 @Composable
 internal fun ReadAloudBar(state: ReadAloud.State, onSettings: () -> Unit) {
-    // A notice (no voice for a language) is said for a few seconds
-    LaunchedEffect(state.notice) { if (state.notice != null) { delay(6000); ReadAloud.clearNotice() } }
+    // A notice that only tells (the phone's voice reads for now) goes after a few seconds; one that says why
+    // nothing is read stays until reading starts again
+    LaunchedEffect(state.notice) {
+        if (state.notice == ReadAloud.NOTICE_NOT_DOWNLOADED || state.notice == ReadAloud.NOTICE_OWN_FAILED) { delay(6000); ReadAloud.clearNotice() }
+    }
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 3.dp, shadowElevation = 8.dp,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),

@@ -36,6 +36,7 @@ class ReadAloudService : Service() {
     private lateinit var session: MediaSession
     private lateinit var audio: AudioManager
     private var focus: AudioFocusRequest? = null
+    private var pausedForAWhile = false
     private var foreground = false
 
     private val noisy = object : BroadcastReceiver() {
@@ -77,7 +78,12 @@ class ReadAloudService : Service() {
     }
 
     private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
-        if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) ReadAloud.pause()
+        when (change) {
+            AudioManager.AUDIOFOCUS_LOSS -> { pausedForAWhile = false; ReadAloud.pause() }
+            // A call or an alarm: reading goes on after it, if it was going before
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> if (ReadAloud.state.value.playing) { pausedForAWhile = true; ReadAloud.pause() }
+            AudioManager.AUDIOFOCUS_GAIN -> if (pausedForAWhile) { pausedForAWhile = false; ReadAloud.resume() }
+        }
     }
 
     private fun takeFocus() {

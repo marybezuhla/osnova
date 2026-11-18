@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.Crossfade
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -166,8 +167,13 @@ class MainActivity : ComponentActivity() {
             val lastOfKind = remember { HashMap<String, String>() }
             val kind = steps.last().substringBefore(':')
             lastOfKind[kind] = steps.last()
+            // Each screen keeps where its list was scrolled to, for "back" (a reader is one, whichever page it shows)
+            val saved = rememberSaveableStateHolder()
+            // ...but a reader closed is opened anew next time, at the page asked for
+            LaunchedEffect(kind) { if (kind != "read") saved.removeState("read") }
             Crossfade(targetState = kind, animationSpec = tween(120), label = "screen") { shown ->
                 val step = lastOfKind[shown] ?: return@Crossfade
+                saved.SaveableStateProvider(if (shown == "read") shown else step) {
                 when {
                     step == HOME -> HomeScreen(
                         c, lang, bookmarks.value, last.value, query, { query = it }, showBookmarks, { showBookmarks = it },
@@ -204,6 +210,7 @@ class MainActivity : ComponentActivity() {
                         onBack = ::back,
                     )
                     step == ABOUT -> AboutPage(::back)
+                }
                 }
             }
             SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp))

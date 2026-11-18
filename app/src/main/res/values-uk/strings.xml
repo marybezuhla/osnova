@@ -12,7 +12,8 @@
     <string name="tab_contents">Зміст</string>
     <string name="tab_bookmarks">Закладки</string>
     <string name="bookmarks_empty">Закладок ще немає. Натисніть закладку вгорі статті, щоб вона зʼявилася тут.</string>
-    <string name="bookmark_add">Додати закладку</string>
+    <string name="bookmark">Закладка</string>
+    <string name="read_voice_incomplete">Файл завантажено не повністю (завантаження обірвалося): завантажте його знову.</string>
     <string name="bookmark_remove">Прибрати закладку</string>
     <string name="bookmark_removed">Закладку прибрано: %1$s</string>
     <string name="undo">Повернути</string>
@@ -42,9 +43,8 @@
     <string name="share_send">Поділитися</string>
     <string name="quote_open">«</string>
     <string name="quote_close">»</string>
-    <string name="quote_constitution">Конституція України</string>
     <string name="loading">Відкриваю Конституцію…</string>
-    <string name="app_language">Мова</string>
+    <string name="app_language">Мова застосунку</string>
     <string name="lang_auto">Як у телефоні</string>
     <string name="search_found">Знайдено абзаців: %1$s</string>
     <string name="read_no_sound">Не вдалося відтворити звук, тож читання зупинено. Спробуйте ще раз.</string>

@@ -22,13 +22,16 @@ object Search {
 
     private val WORD = Regex("[\\p{L}\\p{N}']+")
     /** "ст", "стаття", "статтю", "art", "article": any form of the word, and of "частина", "пункт" after the number */
-    private const val ARTICLE = "(?:ст\\p{L}*|art\\p{L}*)\\.?"
-    private const val PART = "(?:\\s*(?:ч|п|част\\p{L}*|пункт\\p{L}*|part|para\\p{L}*|clause)\\.?\\s*\\d+(?:-\\d+)?\\.?)*"
-    private val NUMBER = Regex("^(?:$ARTICLE\\s*)?№?\\s*(\\d{1,3}(?:-\\d)?)\\.?(?:\\s*$ARTICLE)?$PART$")
+    private const val ARTICLE = "(?:ст(?:атт\\p{L}*)?|art(?:icle)?s?)\\.?"
+    private const val ONE_PART = "(?:ч|п|част\\p{L}*|пункт\\p{L}*|part|para\\p{L}*|clause)\\.?\\s*\\d+(?:-\\d+)?\\.?"
+    /** Also "ч. 2 ст. 24", "ст. 24 ч. 2", "Article 24(2)" */
+    private val NUMBER = Regex("^(?:(?:$ONE_PART\\s*)*$ARTICLE\\s*)?№?\\s*(\\d{1,3}(?:-\\d)?)(?:\\(\\d+\\))*\\.?(?:\\s*$ARTICLE)?(?:\\s*$ONE_PART)*$")
     /** "розділ XV", "р. 15", "chapter iv", "п. 3 розділу XV" (the chapter is where it goes) */
-    private val CHAPTER = Regex("^(?:(?:п|пункт\\p{L}*|clause)\\.?\\s*\\d+(?:-\\d+)?\\.?\\s*)?(?:розд\\p{L}*|р\\.|chapter|ch\\.)\\s*([ivxl]+|\\d{1,2})\\.?$")
+    private val CHAPTER = Regex("^(?:(?:п|пункт\\p{L}*|clause)\\.?\\s*\\d+(?:-\\d+)?\\.?\\s*)?(?:розд\\p{L}*\\.?|р\\.|chapter|ch\\.)\\s*([ivxlіх]+|\\d{1,2})\\.?$")
     private val ROMAN = listOf("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV")
-    private val AMERICAN = Regex("iz(e|es|ed|ing|ation|ations)$")
+    private val AMERICAN = Regex("(?<!se)iz(e|es|ed|ing|ation|ations)$")
+    /** Words of chapter titles that do not say which chapter it is */
+    private val COMMON = setOf("україни", "ukraine", "автономної", "республіки", "autonomous", "republic")
     /** Latin letters that look like Ukrainian ones, typed by mistake into a Ukrainian word */
     private val LOOKALIKE = mapOf('a' to 'а', 'c' to 'с', 'e' to 'е', 'i' to 'і', 'o' to 'о', 'p' to 'р', 'x' to 'х', 'y' to 'у', 'k' to 'к', 'm' to 'м', 'h' to 'н', 't' to 'т', 'b' to 'в')
 
@@ -85,11 +88,16 @@ object Search {
     fun chapter(c: Constitution, query: String): Chapter? {
         val q = clean(query).trim()
         CHAPTER.find(q)?.groupValues?.get(1)?.let { n ->
-            val roman = n.toIntOrNull()?.let { ROMAN.getOrNull(it - 1) } ?: n.uppercase()
+            // Roman numerals are often typed in Ukrainian letters: "розділ ХІІ"
+            val roman = n.toIntOrNull()?.let { ROMAN.getOrNull(it - 1) } ?: n.replace('і', 'i').replace('х', 'x').uppercase()
             return c.chapters.firstOrNull { it.num == roman }
         }
         val stems = stems(query).takeIf { s -> s.isNotEmpty() && s.none { w -> w.any { it.isDigit() } } } ?: return null
-        return c.chapters.firstOrNull { match(it.title, stems) != null && stems.sumOf { it.length } * 3 >= it.title.count(Char::isLetter) }
+        // Every word of the title is asked for, by most of it: "перехідні положення", "правосуддя", but not "права"
+        return c.chapters.firstOrNull { ch ->
+            WORD.findAll(normalize(ch.title)).map { it.value.replace("'", "") }.filter { it.length > 3 && it !in COMMON }
+                .toList().let { words -> words.isNotEmpty() && words.all { w -> stems.any { s -> w.startsWith(s) && s.length * 10 >= w.length * 6 } } }
+        }
     }
 
     /**

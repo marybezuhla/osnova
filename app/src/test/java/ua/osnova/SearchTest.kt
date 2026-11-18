@@ -85,6 +85,10 @@ class SearchTest {
             assertEquals(q, if (q.contains("46")) "46" else "106", Search.articleNumber(q))
         }
         assertNull(Search.articleNumber("2024 рік"))
+        assertEquals("24", Search.articleNumber("ч. 2 ст. 24"))
+        assertEquals("24", Search.articleNumber("Article 24(2)"))
+        assertNull(Search.articleNumber("21 століття"))
+        assertNull(Search.articleNumber("старше 18"))
     }
 
     @Test fun chaptersByNumberOrName() {
@@ -94,6 +98,11 @@ class SearchTest {
         assertEquals("XV", Search.chapter(uk, "перехідні положення")?.num)
         assertEquals("IV", Search.chapter(en, "chapter iv")?.num)
         assertNull(Search.chapter(uk, "свобода слова"))
+        assertEquals("XII", Search.chapter(uk, "розділ ХІІ")?.num)
+        assertEquals("II", Search.chapter(uk, "розд. II")?.num)
+        assertEquals("VIII", Search.chapter(uk, "правосуддя")?.num)
+        for (q in listOf("права", "право", "конституції", "верховної")) assertNull(q, Search.chapter(uk, q))
+        assertNull(Search.chapter(en, "constitution"))
         assertTrue(Search.find(uk, "розділ XV").isEmpty())
     }
 
@@ -101,6 +110,7 @@ class SearchTest {
         for (q in listOf("citizens", "presidential election", "authorities", "liberties", "taxes", "organization", "martial law", "Crimea")) {
             assertTrue(q, Search.find(en, q).isNotEmpty())
         }
+        assertEquals(listOf("seize"), Search.stems("seize"))
         // "Crimea" is not "criminal"
         for (h in Search.find(en, "Crimea")) for (m in h.marks) assertTrue(Search.normalize(h.excerpt.substring(m)).startsWith("crimea"))
     }

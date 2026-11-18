@@ -62,7 +62,7 @@ private fun erase(context: Context) {
     // A quote copied from Osnova does not stay in the clipboard (anything else copied there is not Osnova's to erase)
     try {
         val clip = app.getSystemService(android.content.ClipboardManager::class.java)
-        if (clip?.primaryClipDescription?.label == app.getString(ua.osnova.R.string.quote_constitution)) clip.clearPrimaryClip()
+        if (clip?.primaryClipDescription?.label == ua.osnova.text.Quote.CLIP_LABEL) clip.clearPrimaryClip()
     } catch (_: Exception) { /* the rest still goes */ }
     // The app's language is kept by Android itself (13 and newer): back to "as on the phone"
     if (android.os.Build.VERSION.SDK_INT >= 33) {
@@ -78,7 +78,8 @@ private fun erase(context: Context) {
     if (done) return
     val data = File(app.applicationInfo.dataDir)
     // Everything in the app's own folder (what Android keeps there itself, like "lib", is not the app's to delete)
-    (data.listFiles().orEmpty().toList() + listOf(app.cacheDir, app.codeCacheDir, app.noBackupFilesDir))
+    (data.listFiles().orEmpty().filter { it.name != "lib" && !java.nio.file.Files.isSymbolicLink(it.toPath()) } +
+        listOf(app.cacheDir, app.codeCacheDir, app.noBackupFilesDir))
         .forEach { f -> try { f.deleteRecursively() } catch (_: Exception) { /* the next one still goes */ } }
     // Closed, so nothing still in memory writes anything back
     android.os.Process.killProcess(android.os.Process.myPid())
