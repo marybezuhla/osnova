@@ -1,1 +1,1 @@
-Osnova 1.0. The Constitution of Ukraine in Ukrainian and English, offline: search, bookmarks, quotes cited as lawyers cite them, and reading aloud. New: long words break with a hyphen; search also finds text where "і" was typed as a Latin letter.
+Osnova 1.0.0. Requires Android 8 or newer.

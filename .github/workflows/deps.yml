@@ -30,10 +30,9 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      # The Gradle wrapper jar comes from upstream: check it is an official one before running it
-      - uses: gradle/actions/wrapper-validation@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
         with:
+          gradle-version: "8.14.3"
           # Nothing from earlier runs: every file is downloaded, so every checksum is written
           cache-disabled: true
       - name: Write checksums
@@ -41,7 +40,7 @@ jobs:
         run: |
           rm -f gradle/verification-metadata.xml
           # Failing tests must not stop the checksums from being written; the log shows why
-          ./gradlew --no-daemon --refresh-dependencies --continue --write-verification-metadata sha256 testReleaseUnitTest assembleRelease > deps.log 2>&1 || true
+          gradle --no-daemon --refresh-dependencies --continue --write-verification-metadata sha256 testReleaseUnitTest assembleRelease > deps.log 2>&1 || true
           mkdir -p meta
           cp gradle/verification-metadata.xml meta/ 2>/dev/null || echo "no metadata written" > meta/MISSING
           # (no matches is fine: grep would otherwise stop the step under pipefail)
